@@ -1,22 +1,20 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.user.model;
 
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.PositiveOrZero;
 
 @Data
 @Builder
-public class Item {
+public class User {
     @PositiveOrZero(message = "Id should be positive or zero")
     private Long id;
     @NotEmpty(message = "Name should not be empty")
     private String name;
-    @NotEmpty(message = "Description should not be empty")
-    private String description;
-    private Boolean available;
-    @PositiveOrZero(message = "Owner id should be positive or zero")
-    private Long owner;
-    private String request;
+    @NotEmpty(message = "Email should not be empty")
+    @Email(message = "Email incorrect")
+    private String email;
 }
