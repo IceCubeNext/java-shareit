@@ -20,7 +20,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public UserDto getUserById(@PathVariable Long id) {
-        User user =  userService.getUserById(id);
+        User user = userService.getUserById(id);
         return userMapper.mapToUserDto(user);
     }
 
