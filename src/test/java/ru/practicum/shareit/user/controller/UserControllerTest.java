@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,11 +41,11 @@ class UserControllerTest {
 
     @Test
     public void addNormalUser() throws Exception {
-        User user = User.builder()
+        UserDto userDto = UserDto.builder()
                 .name("User")
                 .email("mail@mail.ru")
                 .build();
-        String json = mapper.writeValueAsString(user);
+        String json = mapper.writeValueAsString(userDto);
         mockMvc.perform(
                         post("/users")
                                 .content(json)
@@ -56,7 +56,7 @@ class UserControllerTest {
 
     @Test
     public void addUserWithIncorrectEmail() throws Exception {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .name("User")
                 .email("mail.ru")
                 .build();
@@ -71,7 +71,7 @@ class UserControllerTest {
 
     @Test
     public void addUserWithEmptyMail() throws Exception {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .name("User")
                 .email("")
                 .build();
@@ -86,7 +86,7 @@ class UserControllerTest {
 
     @Test
     public void addUserWithEmptyName() throws Exception {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .name("")
                 .email("mail@mail.ru")
                 .build();
@@ -101,7 +101,7 @@ class UserControllerTest {
 
     @Test
     public void addUserWithExistsName() throws Exception {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .name("User")
                 .email("mail@mail.ru")
                 .build();
@@ -113,7 +113,7 @@ class UserControllerTest {
                 )
                 .andExpect(status().isOk());
 
-        user = User.builder()
+        user = UserDto.builder()
                 .name("User")
                 .email("mail2@mail.ru")
                 .build();
@@ -128,7 +128,7 @@ class UserControllerTest {
 
     @Test
     public void addUserWithExistsMail() throws Exception {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .name("User")
                 .email("mail@mail.ru")
                 .build();
@@ -140,7 +140,7 @@ class UserControllerTest {
                 )
                 .andExpect(status().isOk());
 
-        user = User.builder()
+        user = UserDto.builder()
                 .name("User2")
                 .email("mail@mail.ru")
                 .build();
@@ -155,11 +155,11 @@ class UserControllerTest {
 
     @Test
     public void getUserByIdTest() throws Exception {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .name("User")
                 .email("mail@mail.ru")
                 .build();
-        User user2 = User.builder()
+        UserDto user2 = UserDto.builder()
                 .name("User2")
                 .email("mail2@mail.ru")
                 .build();
@@ -201,7 +201,7 @@ class UserControllerTest {
 
     @Test
     public void getAbsentUserByIdTest() throws Exception {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .name("User")
                 .email("mail@mail.ru")
                 .build();
@@ -221,11 +221,11 @@ class UserControllerTest {
 
     @Test
     public void getUsersTest() throws Exception {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .name("User")
                 .email("mail@mail.ru")
                 .build();
-        User user2 = User.builder()
+        UserDto user2 = UserDto.builder()
                 .name("User2")
                 .email("mail2@mail.ru")
                 .build();
@@ -255,7 +255,7 @@ class UserControllerTest {
 
     @Test
     public void updateUserTest() throws Exception {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .name("User")
                 .email("mail@mail.ru")
                 .build();
@@ -267,7 +267,7 @@ class UserControllerTest {
                 )
                 .andExpect(status().isOk());
 
-        User newUser = User.builder()
+        UserDto newUser = UserDto.builder()
                 .name("New user")
                 .email("mail2@mail.ru")
                 .build();
@@ -292,7 +292,7 @@ class UserControllerTest {
 
     @Test
     public void updateAbsentUserTest() throws Exception {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .name("User")
                 .email("mail@mail.ru")
                 .build();
@@ -304,7 +304,7 @@ class UserControllerTest {
                 )
                 .andExpect(status().isOk());
 
-        User newUser = User.builder()
+        UserDto newUser = UserDto.builder()
                 .name("New user")
                 .email("mail2@mail.ru")
                 .build();
@@ -319,7 +319,7 @@ class UserControllerTest {
 
     @Test
     public void deleteUserTest() throws Exception {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .name("User")
                 .email("mail@mail.ru")
                 .build();
@@ -347,7 +347,7 @@ class UserControllerTest {
 
     @Test
     public void deleteNotFoundUserTest() throws Exception {
-        User user = User.builder()
+        UserDto user = UserDto.builder()
                 .name("User")
                 .email("mail@mail.ru")
                 .build();
