@@ -5,6 +5,7 @@ import lombok.Data;
 import ru.practicum.shareit.request.model.ItemRequest;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
 @Data
@@ -16,6 +17,7 @@ public class ItemDto {
     private String name;
     @NotEmpty(message = "Description should not be empty")
     private String description;
+    @NotNull(message = "Available should not be null")
     private Boolean available;
     @PositiveOrZero(message = "Owner id should be positive or zero")
     private Long owner;
