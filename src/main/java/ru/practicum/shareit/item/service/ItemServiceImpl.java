@@ -7,7 +7,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -18,54 +18,51 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getItemById(Long id) {
-        if (itemRepository.containsItem(id)) {
-            return itemRepository.getItemById(id);
-        } else {
-            throw new NotFoundException(String.format("Item with id=%d not found", id));
-        }
+        checkItem(id);
+        return itemRepository.getItemById(id);
     }
 
     @Override
     public List<Item> getItemsByUserId(Long userId) {
-        if (userRepository.containsUser(userId)) {
-            return itemRepository.getItemsByUserId(userId);
-        } else {
-            throw new NotFoundException(String.format("User with id=%d not found", userId));
-        }
+        checkUser(userId);
+        return itemRepository.getItemsByUserId(userId);
     }
 
     @Override
     public List<Item> searchItems(String text) {
-        if (text.isEmpty()) {
-            return new ArrayList<>();
+        if (text.isBlank()) {
+            return Collections.emptyList();
         }
         return itemRepository.searchItems(text);
     }
 
     @Override
     public Item addItem(Item item) {
-        if (userRepository.containsUser(item.getOwner())) {
-            return itemRepository.addItem(item);
-        } else {
-            throw new NotFoundException(String.format("User with id=%d not found", item.getOwner()));
-        }
+        checkUser(item.getOwner());
+        return itemRepository.addItem(item);
     }
 
     @Override
     public Item updateItem(Long userId, Long id, Item item) {
-        if (userRepository.containsUser(userId)) {
-            return itemRepository.updateItem(userId, id, item);
-        } else {
-            throw new NotFoundException(String.format("User with id=%d not found", userId));
-        }
-
+        checkItem(id);
+        checkUser(userId);
+        return itemRepository.updateItem(userId, id, item);
     }
 
     @Override
     public Item deleteItem(Long id) {
-        if (itemRepository.containsItem(id)) {
-            return itemRepository.deleteItem(id);
-        } else {
+        checkItem(id);
+        return itemRepository.deleteItem(id);
+    }
+
+    private void checkUser(Long id) {
+        if (!userRepository.containsUser(id)) {
+            throw new NotFoundException(String.format("User with id=%d not found", id));
+        }
+    }
+
+    private void checkItem(Long id) {
+        if (!itemRepository.containsItem(id)) {
             throw new NotFoundException(String.format("Item with id=%d not found", id));
         }
     }

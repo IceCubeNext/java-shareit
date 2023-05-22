@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.repository;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 
@@ -20,20 +21,12 @@ public class InMemoryItemRepository implements ItemRepository {
 
     @Override
     public Item getItemById(Long id) {
-        if (items.containsKey(id)) {
-            return items.get(id);
-        } else {
-            throw new NotFoundException(String.format("Item with id=%d not found", id));
-        }
+        return items.get(id);
     }
 
     @Override
     public List<Item> getItemsByUserId(Long userId) {
-        if (userItems.containsKey(userId)) {
-            return new ArrayList<>(userItems.get(userId).values());
-        } else {
-            throw new NotFoundException(String.format("User with id=%d not found", userId));
-        }
+        return new ArrayList<>(userItems.get(userId).values());
     }
 
     @Override
@@ -50,46 +43,34 @@ public class InMemoryItemRepository implements ItemRepository {
         Long id = getNewId();
         item.setId(id);
         items.put(id, item);
-        if (userItems.containsKey(item.getOwner())) {
-            userItems.get(item.getOwner()).put(id, item);
-        } else {
-            userItems.put(item.getOwner(), new HashMap<>());
-            userItems.get(item.getOwner()).put(id, item);
-        }
+        Map<Long, Item> usrItems = userItems.computeIfAbsent(item.getOwner(), k -> new HashMap<>());
+        usrItems.put(id, item);
         return items.get(id);
     }
 
     @Override
     public Item updateItem(Long userId, Long id, Item item) {
-        if (items.containsKey(id)) {
-            Item itm = items.get(id);
-            if (!Objects.equals(userId, itm.getOwner())) {
-                throw new NotFoundException("Attempt to change owner of Item");
-            }
-            if (item.getName() != null && !item.getName().equals(itm.getName())) {
-                itm.setName(item.getName());
-            }
-            if (item.getDescription() != null && !item.getDescription().equals(itm.getDescription())) {
-                itm.setDescription(item.getDescription());
-            }
-            if (item.getAvailable() != null && item.getAvailable() != itm.getAvailable()) {
-                itm.setAvailable(item.getAvailable());
-            }
-        } else {
-            throw new NotFoundException(String.format("Item with id=%d not found", id));
+        Item itm = items.get(id);
+        if (!Objects.equals(userId, itm.getOwner())) {
+            throw new NotFoundException("Attempt to change owner of Item");
         }
-        return items.get(id);
+        if (StringUtils.hasLength(item.getName()) && !item.getName().equals(itm.getName())) {
+            itm.setName(item.getName());
+        }
+        if (StringUtils.hasLength(item.getDescription()) && !item.getDescription().equals(itm.getDescription())) {
+            itm.setDescription(item.getDescription());
+        }
+        if (item.getAvailable() != null && item.getAvailable() != itm.getAvailable()) {
+            itm.setAvailable(item.getAvailable());
+        }
+        return itm;
     }
 
     @Override
     public Item deleteItem(Long id) {
-        if (items.containsKey(id)) {
-            Item item = items.remove(id);
-            userItems.get(item.getOwner()).remove(id);
-            return item;
-        } else {
-            throw new NotFoundException(String.format("Item with id=%d not found", id));
-        }
+        Item item = items.remove(id);
+        userItems.get(item.getOwner()).remove(id);
+        return item;
     }
 
     private Long getNewId() {

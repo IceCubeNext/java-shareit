@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.validation.ConstraintViolationException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +45,23 @@ public class ExceptionApiHandler {
                 .body(Collections.singletonMap("error", exception.getMessage()));
     }
 
+    @ResponseBody
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ValidationErrorResponse onConstraintValidationException(
+            ConstraintViolationException e
+    ) {
+        final List<Violation> violations = e.getConstraintViolations().stream()
+                .map(
+                        violation -> new Violation(
+                                violation.getPropertyPath().toString(),
+                                violation.getMessage()
+                        )
+                )
+                .collect(Collectors.toList());
+        return new ValidationErrorResponse(violations);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -55,5 +75,16 @@ public class ExceptionApiHandler {
             log.error("error validation. " + violation.getFieldName() + ": " + violation.getMessage());
         }
         return new ValidationErrorResponse(violations);
+    }
+
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity<Map<String, String>> throwableException(Throwable exception) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        exception.printStackTrace(pw);
+        log.error(sw.toString());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Collections.singletonMap("error", "Internal Server Error"));
     }
 }

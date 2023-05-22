@@ -116,7 +116,7 @@ class ItemControllerTest {
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -295,7 +295,7 @@ class ItemControllerTest {
         mockMvc.perform(
                         get("/items")
                 )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test

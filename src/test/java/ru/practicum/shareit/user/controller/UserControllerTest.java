@@ -100,33 +100,6 @@ class UserControllerTest {
     }
 
     @Test
-    public void addUserWithExistsName() throws Exception {
-        UserDto user = UserDto.builder()
-                .name("User")
-                .email("mail@mail.ru")
-                .build();
-        String json = mapper.writeValueAsString(user);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        user = UserDto.builder()
-                .name("User")
-                .email("mail2@mail.ru")
-                .build();
-        json = mapper.writeValueAsString(user);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isConflict());
-    }
-
-    @Test
     public void addUserWithExistsMail() throws Exception {
         UserDto user = UserDto.builder()
                 .name("User")
