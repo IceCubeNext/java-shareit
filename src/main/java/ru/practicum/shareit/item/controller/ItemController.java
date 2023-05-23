@@ -9,10 +9,8 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.utility.ItemMapper;
 import ru.practicum.shareit.validation.Marker;
 
-import javax.validation.Valid;
 import java.util.List;
 
-@Validated
 @RestController
 @AllArgsConstructor
 @RequestMapping("/items")
@@ -36,19 +34,17 @@ public class ItemController {
     }
 
     @PostMapping
-    @Validated(Marker.OnCreate.class)
     public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                           @Valid @RequestBody ItemDto itemDto) {
+                           @Validated(Marker.OnCreate.class) @RequestBody ItemDto itemDto) {
         Item item = ItemMapper.mapToItem(itemDto);
         item.setOwner(userId);
         return ItemMapper.mapToItemDto(itemService.addItem(item));
     }
 
     @PatchMapping("/{id}")
-    @Validated(Marker.OnUpdate.class)
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                               @PathVariable Long id,
-                              @Valid @RequestBody ItemDto itemDto) {
+                              @Validated(Marker.OnUpdate.class) @RequestBody ItemDto itemDto) {
         Item item = ItemMapper.mapToItem(itemDto);
         return ItemMapper.mapToItemDto(itemService.updateItem(userId, id, item));
     }

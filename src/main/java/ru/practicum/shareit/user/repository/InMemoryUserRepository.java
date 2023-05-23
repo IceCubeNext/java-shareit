@@ -30,14 +30,12 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User addUser(User user) {
-        if (emails.contains(user.getEmail())) {
-            throw new UserAlreadyExistsException(String.format("Attempt to save user with duplicate email %s", user.getName()));
-        }
+        checkEmail(user);
         Long id = getNewId();
         user.setId(id);
         users.put(id, user);
         emails.add(user.getEmail());
-        return users.get(id);
+        return user;
     }
 
     @Override
@@ -48,9 +46,7 @@ public class InMemoryUserRepository implements UserRepository {
             users.get(id).setName(user.getName());
         }
         if (StringUtils.hasLength(user.getEmail()) && !usr.getEmail().equals(user.getEmail())) {
-            if (emails.contains(user.getEmail())) {
-                throw new UserAlreadyExistsException(String.format("Attempt to save user with duplicate email %s", user.getName()));
-            }
+            checkEmail(user);
             emails.remove(usr.getEmail());
             emails.add(user.getEmail());
             users.get(id).setEmail(user.getEmail());
@@ -62,6 +58,12 @@ public class InMemoryUserRepository implements UserRepository {
     public User deleteUser(Long id) {
         emails.remove(users.get(id).getEmail());
         return users.remove(id);
+    }
+
+    private void checkEmail(User user) {
+        if (emails.contains(user.getEmail())) {
+            throw new UserAlreadyExistsException(String.format("Attempt to save user with duplicate email %s", user.getName()));
+        }
     }
 
     private Long getNewId() {

@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -45,7 +44,6 @@ public class ExceptionApiHandler {
                 .body(Collections.singletonMap("error", exception.getMessage()));
     }
 
-    @ResponseBody
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ValidationErrorResponse onConstraintValidationException(
@@ -59,12 +57,14 @@ public class ExceptionApiHandler {
                         )
                 )
                 .collect(Collectors.toList());
+        for (Violation violation : violations) {
+            log.error("error validation. " + violation.getFieldName() + ": " + violation.getMessage());
+        }
         return new ValidationErrorResponse(violations);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
     public ValidationErrorResponse onMethodArgumentNotValidException(
             MethodArgumentNotValidException e
     ) {

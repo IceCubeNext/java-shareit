@@ -14,6 +14,6 @@ public class UserDto {
     @NotBlank(groups = {Marker.OnCreate.class}, message = "Name should not be empty")
     private String name;
     @NotBlank(groups = {Marker.OnCreate.class}, message = "Email should not be empty")
-    @Email(message = "Email incorrect")
+    @Email(groups = {Marker.OnCreate.class, Marker.OnUpdate.class}, message = "Email incorrect")
     private String email;
 }

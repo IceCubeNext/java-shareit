@@ -26,7 +26,7 @@ public class InMemoryItemRepository implements ItemRepository {
 
     @Override
     public List<Item> getItemsByUserId(Long userId) {
-        return new ArrayList<>(userItems.get(userId).values());
+        return new ArrayList<>(userItems.getOrDefault(userId, Map.of()).values());
     }
 
     @Override
@@ -45,7 +45,7 @@ public class InMemoryItemRepository implements ItemRepository {
         items.put(id, item);
         Map<Long, Item> usrItems = userItems.computeIfAbsent(item.getOwner(), k -> new HashMap<>());
         usrItems.put(id, item);
-        return items.get(id);
+        return item;
     }
 
     @Override
@@ -54,10 +54,10 @@ public class InMemoryItemRepository implements ItemRepository {
         if (!Objects.equals(userId, itm.getOwner())) {
             throw new NotFoundException("Attempt to change owner of Item");
         }
-        if (StringUtils.hasLength(item.getName()) && !item.getName().equals(itm.getName())) {
+        if (StringUtils.hasText(item.getName()) && !item.getName().equals(itm.getName())) {
             itm.setName(item.getName());
         }
-        if (StringUtils.hasLength(item.getDescription()) && !item.getDescription().equals(itm.getDescription())) {
+        if (StringUtils.hasText(item.getDescription()) && !item.getDescription().equals(itm.getDescription())) {
             itm.setDescription(item.getDescription());
         }
         if (item.getAvailable() != null && item.getAvailable() != itm.getAvailable()) {

@@ -9,10 +9,8 @@ import ru.practicum.shareit.user.utility.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.validation.Marker;
 
-import javax.validation.Valid;
 import java.util.List;
 
-@Validated
 @RestController
 @AllArgsConstructor
 @RequestMapping(path = "/users")
@@ -32,15 +30,13 @@ public class UserController {
     }
 
     @PostMapping
-    @Validated({Marker.OnCreate.class})
-    public UserDto addUser(@Valid @RequestBody UserDto userDto) {
+    public UserDto addUser(@Validated({Marker.OnCreate.class}) @RequestBody UserDto userDto) {
         User user = UserMapper.mapToUser(userDto);
         return UserMapper.mapToUserDto(userService.addUser(user));
     }
 
     @PatchMapping("/{id}")
-    @Validated({Marker.OnUpdate.class})
-    public UserDto updateUser(@Valid @RequestBody UserDto userDto,
+    public UserDto updateUser(@Validated({Marker.OnUpdate.class}) @RequestBody UserDto userDto,
                               @PathVariable Long id) {
         User user = UserMapper.mapToUser(userDto);
         user.setId(id);
