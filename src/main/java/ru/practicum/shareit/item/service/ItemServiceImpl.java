@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -13,6 +14,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -55,11 +57,20 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public ItemDto updateItem(Long userId, Long id, ItemDto itemDto) {
-        if (itemRepository.existsById(id)) {
-            return addItem(userId, itemDto);
-        } else {
-            throw new NotFoundException(String.format("Item with id=%d not found", id));
+        Item item = getItem(id);
+        if (!Objects.equals(userId, item.getOwner().getId())) {
+            throw new NotFoundException(String.format("Item with userId=%d not found", userId));
         }
+        if (StringUtils.hasText(itemDto.getName()) && !itemDto.getName().equals(item.getName())) {
+            item.setName(itemDto.getName());
+        }
+        if (StringUtils.hasText(itemDto.getDescription()) && !itemDto.getDescription().equals(item.getDescription())) {
+            item.setDescription(itemDto.getDescription());
+        }
+        if (itemDto.getAvailable() != null && itemDto.getAvailable() != item.getAvailable()) {
+            item.setAvailable(itemDto.getAvailable());
+        }
+        return ItemMapper.mapToItemDto(itemRepository.save(item));
     }
 
     @Override

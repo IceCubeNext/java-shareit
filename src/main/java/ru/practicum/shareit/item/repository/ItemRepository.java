@@ -9,7 +9,9 @@ import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("select it from Item as it " +
-           "where it.name like concat(?1, '%') and it.description like concat(?1, '%')" +
+           "where " +
+           "(upper(it.name) like concat('%', upper(?1), '%') or upper(it.description) like concat('%', upper(?1), '%')) " +
+           "and it.available = true " +
            "order by it.id")
     List<Item> findText(String text);
 

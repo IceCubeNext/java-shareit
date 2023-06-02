@@ -33,7 +33,6 @@ public class UserController {
     @PatchMapping("/{id}")
     public UserDto updateUser(@Validated({Marker.OnUpdate.class}) @RequestBody UserDto userDto,
                               @PathVariable Long id) {
-        userDto.setId(id);
         return userService.updateUser(userDto, id);
     }
 

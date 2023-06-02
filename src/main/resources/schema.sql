@@ -1,3 +1,9 @@
+DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS requests;
+DROP TABLE IF EXISTS users;
+
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -23,7 +29,7 @@ CREATE TABLE IF NOT EXISTS items (
      description VARCHAR(2000) NOT NULL,
      available BOOLEAN NOT NULL,
      owner_id BIGINT NOT NULL,
-     request_id BIGINT NOT NULL,
+     request_id BIGINT,
      CONSTRAINT pk_item PRIMARY KEY (id),
      CONSTRAINT fk_item_user
          FOREIGN KEY (owner_id)
