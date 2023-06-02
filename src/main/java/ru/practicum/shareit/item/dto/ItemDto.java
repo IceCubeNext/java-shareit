@@ -1,14 +1,16 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.validation.Marker;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemDto {
     private Long id;
     @NotBlank(groups = {Marker.OnCreate.class}, message = "Name should not be empty")

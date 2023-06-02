@@ -4,9 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.item.utility.ItemMapper;
 import ru.practicum.shareit.validation.Marker;
 
 import java.util.List;
@@ -19,39 +17,34 @@ public class ItemController {
 
     @GetMapping("/{id}")
     public ItemDto getItemById(@PathVariable Long id) {
-        Item item = itemService.getItemById(id);
-        return ItemMapper.mapToItemDto(item);
+        return itemService.getItemById(id);
     }
 
     @GetMapping
     public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return ItemMapper.mapToItemsDto(itemService.getItemsByUserId(userId));
+        return itemService.getItemsByUserId(userId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> searchItems(@RequestParam(value = "text") String text) {
-        return ItemMapper.mapToItemsDto(itemService.searchItems(text));
+        return itemService.searchItems(text);
     }
 
     @PostMapping
     public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                            @Validated(Marker.OnCreate.class) @RequestBody ItemDto itemDto) {
-        Item item = ItemMapper.mapToItem(itemDto);
-        item.setOwner(userId);
-        return ItemMapper.mapToItemDto(itemService.addItem(item));
+        return itemService.addItem(userId, itemDto);
     }
 
     @PatchMapping("/{id}")
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                               @PathVariable Long id,
                               @Validated(Marker.OnUpdate.class) @RequestBody ItemDto itemDto) {
-        Item item = ItemMapper.mapToItem(itemDto);
-        return ItemMapper.mapToItemDto(itemService.updateItem(userId, id, item));
+        return itemService.updateItem(userId, id, itemDto);
     }
 
     @DeleteMapping("{id}")
-    public ItemDto deleteItem(@PathVariable Long id) {
-        Item item = itemService.deleteItem(id);
-        return ItemMapper.mapToItemDto(item);
+    public void deleteItem(@PathVariable Long id) {
+        itemService.deleteItem(id);
     }
 }
