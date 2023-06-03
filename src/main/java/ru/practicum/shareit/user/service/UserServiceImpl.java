@@ -5,14 +5,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.UserAlreadyExistsException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.utility.UserMapper;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +33,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto addUser(UserDto userDto) {
-        checkEmail(userDto);
         User user = UserMapper.mapToUser(userDto);
         return UserMapper.mapToUserDto(userRepository.save(user));
     }
@@ -48,7 +45,6 @@ public class UserServiceImpl implements UserService {
             user.setName(userDto.getName());
         }
         if (StringUtils.hasLength(userDto.getEmail()) && !userDto.getEmail().equals(user.getEmail())) {
-            checkEmail(userDto);
             user.setEmail(userDto.getEmail());
         }
         return UserMapper.mapToUserDto(userRepository.save(user));
@@ -59,14 +55,6 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long id) {
         User user = getUser(id);
         userRepository.delete(user);
-    }
-
-    private void checkEmail(UserDto userDto) {
-        if (!StringUtils.hasLength(userDto.getEmail())) return;
-        User user = userRepository.getUserByEmail(userDto.getEmail());
-        if (user != null && !Objects.equals(user.getId(), userDto.getId())) {
-            throw new UserAlreadyExistsException(String.format("Email %s already exists", userDto.getEmail()));
-        }
     }
 
     private User getUser(Long id) {
