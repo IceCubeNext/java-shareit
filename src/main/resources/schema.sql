@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS comments (
     text VARCHAR(2000) NOT NULL,
     item_id BIGINT NOT NULL,
     author_id BIGINT NOT NULL,
+    created TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     CONSTRAINT pk_comment PRIMARY KEY (id),
     CONSTRAINT fk_item_comment
         FOREIGN KEY (item_id)

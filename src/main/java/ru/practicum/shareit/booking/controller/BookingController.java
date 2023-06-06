@@ -10,14 +10,13 @@ import ru.practicum.shareit.validation.Marker;
 
 import java.util.List;
 
-
 @RestController
 @AllArgsConstructor
 @RequestMapping(path = "/bookings")
 public class BookingController {
     private final BookingService bookingService;
 
-    @GetMapping("{bookingId}")
+    @GetMapping("/{bookingId}")
     BookingDto getBookingById(@PathVariable(value = "bookingId") Long id,
                               @RequestHeader("X-Sharer-User-Id") Long userId) {
         return bookingService.getBookingById(id, userId);
@@ -29,7 +28,7 @@ public class BookingController {
         return bookingService.getUserBookings(userId, state);
     }
 
-    @GetMapping("owner")
+    @GetMapping("/owner")
     List<BookingDto> getBookingsByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
                                         @RequestParam(value = "state", defaultValue = "ALL") String state) {
         return bookingService.getBookingsByOwner(userId, state);
@@ -41,7 +40,7 @@ public class BookingController {
         return bookingService.addBooking(bookingDto, userId);
     }
 
-    @PatchMapping("{bookingId}")
+    @PatchMapping("/{bookingId}")
     BookingDto approveBooking(@PathVariable(value = "bookingId") Long id,
                               @RequestHeader("X-Sharer-User-Id") Long userId,
                               @RequestParam(value = "approved") Boolean isApproved) {

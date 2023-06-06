@@ -7,7 +7,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -18,9 +18,9 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "start_time")
-    private Timestamp start;
+    private LocalDateTime start;
     @Column(name = "end_time")
-    private Timestamp end;
+    private LocalDateTime end;
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private Item item;
@@ -28,5 +28,6 @@ public class Booking {
     @ToString.Exclude
     private User booker;
     @Column
+    @Enumerated(EnumType.STRING)
     private BookingStatus status;
 }

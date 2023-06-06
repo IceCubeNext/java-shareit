@@ -14,8 +14,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -53,19 +52,19 @@ public class BookingServiceImpl implements BookingService{
                         .sorted(Comparator.comparing(BookingDto::getStart).reversed())
                         .collect(Collectors.toList());
             case "CURRENT":
-                bookings = bookingRepository.findAllByBookerIdAndStartAfterAndEndBefore(userId, Timestamp.from(Instant.now()), Timestamp.from(Instant.now()));
+                bookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfter(userId, LocalDateTime.now(), LocalDateTime.now());
                 return bookings.stream()
                         .map(BookingMapper::mapToBookingDto)
                         .sorted(Comparator.comparing(BookingDto::getStart).reversed())
                         .collect(Collectors.toList());
             case "PAST":
-                bookings = bookingRepository.findAllByBookerIdAndEndBefore(userId, Timestamp.from(Instant.now()));
+                bookings = bookingRepository.findAllByBookerIdAndEndBefore(userId, LocalDateTime.now());
                 return bookings.stream()
                         .map(BookingMapper::mapToBookingDto)
                         .sorted(Comparator.comparing(BookingDto::getStart).reversed())
                         .collect(Collectors.toList());
             case "FUTURE":
-                bookings = bookingRepository.findAllByBookerIdAndStartAfter(userId, Timestamp.from(Instant.now()));
+                bookings = bookingRepository.findAllByBookerIdAndStartAfter(userId, LocalDateTime.now());
                 return bookings.stream()
                         .map(BookingMapper::mapToBookingDto)
                         .sorted(Comparator.comparing(BookingDto::getStart).reversed())
@@ -101,19 +100,19 @@ public class BookingServiceImpl implements BookingService{
                         .sorted(Comparator.comparing(BookingDto::getStart).reversed())
                         .collect(Collectors.toList());
             case "CURRENT":
-                bookings = bookingRepository.findAllByItemOwnerIdAndStartAfterAndEndBefore(ownerId, Timestamp.from(Instant.now()), Timestamp.from(Instant.now()));
+                bookings = bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfter(ownerId, LocalDateTime.now(), LocalDateTime.now());
                 return bookings.stream()
                         .map(BookingMapper::mapToBookingDto)
                         .sorted(Comparator.comparing(BookingDto::getStart).reversed())
                         .collect(Collectors.toList());
             case "PAST":
-                bookings = bookingRepository.findAllByItemOwnerIdAndEndBefore(ownerId, Timestamp.from(Instant.now()));
+                bookings = bookingRepository.findAllByItemOwnerIdAndEndBefore(ownerId, LocalDateTime.now());
                 return bookings.stream()
                         .map(BookingMapper::mapToBookingDto)
                         .sorted(Comparator.comparing(BookingDto::getStart).reversed())
                         .collect(Collectors.toList());
             case "FUTURE":
-                bookings = bookingRepository.findAllByItemOwnerIdAndStartAfter(ownerId, Timestamp.from(Instant.now()));
+                bookings = bookingRepository.findAllByItemOwnerIdAndStartAfter(ownerId, LocalDateTime.now());
                 return bookings.stream()
                         .map(BookingMapper::mapToBookingDto)
                         .sorted(Comparator.comparing(BookingDto::getStart).reversed())
@@ -145,7 +144,7 @@ public class BookingServiceImpl implements BookingService{
         if (!item.getAvailable()) {
             throw new IllegalArgumentException(String.format("Item with id=%d is not available", item.getId()));
         }
-        if (bookingDto.getEnd().equals(bookingDto.getStart()) || bookingDto.getStart().after(bookingDto.getEnd())) {
+        if (bookingDto.getEnd().equals(bookingDto.getStart()) || bookingDto.getStart().isAfter((bookingDto.getEnd()))) {
             throw new IllegalArgumentException("Start of booking should be before than end");
         }
         Booking booking = BookingMapper.mapToBooking(bookingDto, item, user);
