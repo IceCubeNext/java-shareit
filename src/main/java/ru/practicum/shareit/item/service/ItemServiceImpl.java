@@ -48,7 +48,7 @@ public class ItemServiceImpl implements ItemService {
                 .map(ItemMapper::mapToItemInfoDto)
                 .sorted(Comparator.comparing(ItemInfoDto::getId))
                 .collect(Collectors.toList());
-        for(ItemInfoDto item: items) {
+        for (ItemInfoDto item : items) {
             setItemInfo(item, userId);
         }
         return items;
