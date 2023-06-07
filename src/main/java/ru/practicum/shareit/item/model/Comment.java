@@ -14,7 +14,6 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
     private String text;
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
@@ -22,6 +21,5 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private User author;
-    @Column
     private LocalDateTime created;
 }

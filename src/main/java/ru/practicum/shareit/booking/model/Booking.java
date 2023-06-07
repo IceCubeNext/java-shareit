@@ -27,7 +27,6 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private User booker;
-    @Column
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
 }

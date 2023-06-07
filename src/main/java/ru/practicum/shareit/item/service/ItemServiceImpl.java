@@ -81,7 +81,8 @@ public class ItemServiceImpl implements ItemService {
             Comment comment = ItemMapper.mapToComment(commentDto, author, item);
             return ItemMapper.mapToCommentDto(commentRepository.save(comment));
         }
-        throw new IllegalArgumentException(String.format("Booking with userId=%d and ItemId=%d not found", userId, itemId));
+        throw new IllegalArgumentException(
+                String.format("Booking with userId=%d and ItemId=%d not found", userId, itemId));
     }
 
     @Transactional

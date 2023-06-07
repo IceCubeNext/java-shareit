@@ -16,11 +16,8 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
     private String name;
-    @Column
     private String description;
-    @Column
     private Boolean available;
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude

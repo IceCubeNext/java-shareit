@@ -8,21 +8,8 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @UtilityClass
 public class BookingMapper {
-    public Booking mapToBooking(BookingDto bookingDto, Item item, User user) {
-        Booking booking = new Booking();
-        booking.setStart(bookingDto.getStart());
-        booking.setEnd(bookingDto.getEnd());
-        booking.setItem(item);
-        booking.setBooker(user);
-        booking.setStatus(bookingDto.getStatus());
-        return booking;
-    }
-
     public Booking mapToBooking(BookingCreateDto bookingDto, Item item, User user) {
         Booking booking = new Booking();
         booking.setStart(bookingDto.getStart());
@@ -42,9 +29,5 @@ public class BookingMapper {
                 booking.getBooker(),
                 booking.getStatus()
         );
-    }
-
-    public List<BookingDto> mapToBookingDto(List<Booking> bookings) {
-        return bookings.stream().map(BookingMapper::mapToBookingDto).collect(Collectors.toList());
     }
 }
