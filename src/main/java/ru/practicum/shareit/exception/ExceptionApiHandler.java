@@ -8,6 +8,7 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.validation.ConstraintViolationException;
 import java.io.PrintWriter;
@@ -51,6 +52,14 @@ public class ExceptionApiHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(Collections.singletonMap("error", exception.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, String>> conversionFailedException(MethodArgumentTypeMismatchException exception) {
+        log.error(exception.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Collections.singletonMap("error", "Unknown state: " + exception.getValue()));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

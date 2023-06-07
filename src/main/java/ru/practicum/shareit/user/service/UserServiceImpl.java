@@ -41,13 +41,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUser(UserDto userDto, Long id) {
         User user = getUser(id);
-        if (StringUtils.hasLength(userDto.getName()) && !userDto.getName().equals(user.getName())) {
+        if (StringUtils.hasText(userDto.getName()) && !userDto.getName().equals(user.getName())) {
             user.setName(userDto.getName());
         }
-        if (StringUtils.hasLength(userDto.getEmail()) && !userDto.getEmail().equals(user.getEmail())) {
+        if (StringUtils.hasText(userDto.getEmail()) && !userDto.getEmail().equals(user.getEmail())) {
             user.setEmail(userDto.getEmail());
         }
-        return UserMapper.mapToUserDto(userRepository.save(user));
+        return UserMapper.mapToUserDto(user);
     }
 
     @Transactional

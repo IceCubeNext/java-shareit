@@ -1,16 +1,17 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.shareit.validation.Marker;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentCreateDto {
     @NotBlank(groups = {Marker.OnCreate.class}, message = "Text should not be empty")
-    String text;
+    @Size(max = 2000, groups = {Marker.OnCreate.class}, message = "Text should be less than 2000 symbols")
+    private String text;
 }

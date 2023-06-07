@@ -1,16 +1,15 @@
 package ru.practicum.shareit.user.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.shareit.validation.Marker;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserDto {
     private Long id;
     @NotBlank(groups = {Marker.OnCreate.class}, message = "Name should not be empty")

@@ -1,14 +1,15 @@
 package ru.practicum.shareit.item.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "items")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})

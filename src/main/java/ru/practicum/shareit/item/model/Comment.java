@@ -1,13 +1,18 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Data;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "comments")
 public class Comment {
@@ -17,7 +22,7 @@ public class Comment {
     private String text;
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
-    Item item;
+    private Item item;
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private User author;
