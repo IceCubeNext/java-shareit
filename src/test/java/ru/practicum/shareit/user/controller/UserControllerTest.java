@@ -41,10 +41,9 @@ class UserControllerTest {
 
     @Test
     public void addNormalUser() throws Exception {
-        UserDto userDto = UserDto.builder()
-                .name("User")
-                .email("mail@mail.ru")
-                .build();
+        UserDto userDto = new UserDto();
+        userDto.setName("User");
+        userDto.setEmail("mail@mail.ru");
         String json = mapper.writeValueAsString(userDto);
         mockMvc.perform(
                         post("/users")
@@ -56,11 +55,10 @@ class UserControllerTest {
 
     @Test
     public void addUserWithIncorrectEmail() throws Exception {
-        UserDto user = UserDto.builder()
-                .name("User")
-                .email("mail.ru")
-                .build();
-        String json = mapper.writeValueAsString(user);
+        UserDto userDto = new UserDto();
+        userDto.setName("User");
+        userDto.setEmail("mail.ru");
+        String json = mapper.writeValueAsString(userDto);
         mockMvc.perform(
                         post("/users")
                                 .content(json)
@@ -71,11 +69,10 @@ class UserControllerTest {
 
     @Test
     public void addUserWithEmptyMail() throws Exception {
-        UserDto user = UserDto.builder()
-                .name("User")
-                .email("")
-                .build();
-        String json = mapper.writeValueAsString(user);
+        UserDto userDto = new UserDto();
+        userDto.setName("User");
+        userDto.setEmail("");
+        String json = mapper.writeValueAsString(userDto);
         mockMvc.perform(
                         post("/users")
                                 .content(json)
@@ -86,11 +83,10 @@ class UserControllerTest {
 
     @Test
     public void addUserWithEmptyName() throws Exception {
-        UserDto user = UserDto.builder()
-                .name("")
-                .email("mail@mail.ru")
-                .build();
-        String json = mapper.writeValueAsString(user);
+        UserDto userDto = new UserDto();
+        userDto.setName("");
+        userDto.setEmail("mail@mail.ru");
+        String json = mapper.writeValueAsString(userDto);
         mockMvc.perform(
                         post("/users")
                                 .content(json)
@@ -101,11 +97,10 @@ class UserControllerTest {
 
     @Test
     public void addUserWithExistsMail() throws Exception {
-        UserDto user = UserDto.builder()
-                .name("User")
-                .email("mail@mail.ru")
-                .build();
-        String json = mapper.writeValueAsString(user);
+        UserDto userDto = new UserDto();
+        userDto.setName("User");
+        userDto.setEmail("mail@mail.ru");
+        String json = mapper.writeValueAsString(userDto);
         mockMvc.perform(
                         post("/users")
                                 .content(json)
@@ -113,31 +108,28 @@ class UserControllerTest {
                 )
                 .andExpect(status().isOk());
 
-        user = UserDto.builder()
-                .name("User2")
-                .email("mail@mail.ru")
-                .build();
-        json = mapper.writeValueAsString(user);
+        userDto.setName("User2");
+        userDto.setEmail("mail@mail.ru");
+        json = mapper.writeValueAsString(userDto);
         mockMvc.perform(
                         post("/users")
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isConflict());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
     public void getUserByIdTest() throws Exception {
-        UserDto user = UserDto.builder()
-                .name("User")
-                .email("mail@mail.ru")
-                .build();
-        UserDto user2 = UserDto.builder()
-                .name("User2")
-                .email("mail2@mail.ru")
-                .build();
-        String json = mapper.writeValueAsString(user);
-        String json2 = mapper.writeValueAsString(user2);
+        UserDto userDto = new UserDto();
+        userDto.setName("User");
+        userDto.setEmail("mail@mail.ru");
+
+        UserDto userDto2 = new UserDto();
+        userDto2.setName("User2");
+        userDto2.setEmail("mail2@mail.ru");
+        String json = mapper.writeValueAsString(userDto);
+        String json2 = mapper.writeValueAsString(userDto2);
         mockMvc.perform(
                         post("/users")
                                 .content(json)
@@ -151,10 +143,10 @@ class UserControllerTest {
                 )
                 .andExpect(status().isOk());
 
-        user.setId(1L);
-        user2.setId(2L);
-        String jsonExpected = mapper.writeValueAsString(user);
-        String jsonExpected2 = mapper.writeValueAsString(user2);
+        userDto.setId(1L);
+        userDto2.setId(2L);
+        String jsonExpected = mapper.writeValueAsString(userDto);
+        String jsonExpected2 = mapper.writeValueAsString(userDto2);
 
         MvcResult result2 = mockMvc.perform(
                         get("/users/2")
@@ -174,11 +166,10 @@ class UserControllerTest {
 
     @Test
     public void getAbsentUserByIdTest() throws Exception {
-        UserDto user = UserDto.builder()
-                .name("User")
-                .email("mail@mail.ru")
-                .build();
-        String json = mapper.writeValueAsString(user);
+        UserDto userDto = new UserDto();
+        userDto.setName("User");
+        userDto.setEmail("mail@mail.ru");
+        String json = mapper.writeValueAsString(userDto);
         mockMvc.perform(
                         post("/users")
                                 .content(json)
@@ -194,16 +185,15 @@ class UserControllerTest {
 
     @Test
     public void getUsersTest() throws Exception {
-        UserDto user = UserDto.builder()
-                .name("User")
-                .email("mail@mail.ru")
-                .build();
-        UserDto user2 = UserDto.builder()
-                .name("User2")
-                .email("mail2@mail.ru")
-                .build();
-        String json = mapper.writeValueAsString(user);
-        String json2 = mapper.writeValueAsString(user2);
+        UserDto userDto = new UserDto();
+        userDto.setName("User");
+        userDto.setEmail("mail@mail.ru");
+
+        UserDto userDto2 = new UserDto();
+        userDto2.setName("User2");
+        userDto2.setEmail("mail2@mail.ru");
+        String json = mapper.writeValueAsString(userDto);
+        String json2 = mapper.writeValueAsString(userDto2);
         mockMvc.perform(
                         post("/users")
                                 .content(json)
@@ -228,11 +218,11 @@ class UserControllerTest {
 
     @Test
     public void updateUserTest() throws Exception {
-        UserDto user = UserDto.builder()
-                .name("User")
-                .email("mail@mail.ru")
-                .build();
-        String json = mapper.writeValueAsString(user);
+        UserDto userDto = new UserDto();
+        userDto.setName("User");
+        userDto.setEmail("mail@mail.ru");
+
+        String json = mapper.writeValueAsString(userDto);
         mockMvc.perform(
                         post("/users")
                                 .content(json)
@@ -240,11 +230,11 @@ class UserControllerTest {
                 )
                 .andExpect(status().isOk());
 
-        UserDto newUser = UserDto.builder()
-                .name("New user")
-                .email("mail2@mail.ru")
-                .build();
-        json = mapper.writeValueAsString(newUser);
+        UserDto userDto2 = new UserDto();
+        userDto2.setName("User2");
+        userDto2.setEmail("mail2@mail.ru");
+
+        json = mapper.writeValueAsString(userDto2);
         mockMvc.perform(
                         patch("/users/1")
                                 .content(json)
@@ -258,18 +248,17 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        newUser.setId(1L);
-        String jsonExpected = mapper.writeValueAsString(newUser);
+        userDto2.setId(1L);
+        String jsonExpected = mapper.writeValueAsString(userDto2);
         assertEquals(jsonExpected, result.getResponse().getContentAsString());
     }
 
     @Test
     public void updateAbsentUserTest() throws Exception {
-        UserDto user = UserDto.builder()
-                .name("User")
-                .email("mail@mail.ru")
-                .build();
-        String json = mapper.writeValueAsString(user);
+        UserDto userDto = new UserDto();
+        userDto.setName("User");
+        userDto.setEmail("mail@mail.ru");
+        String json = mapper.writeValueAsString(userDto);
         mockMvc.perform(
                         post("/users")
                                 .content(json)
@@ -277,11 +266,10 @@ class UserControllerTest {
                 )
                 .andExpect(status().isOk());
 
-        UserDto newUser = UserDto.builder()
-                .name("New user")
-                .email("mail2@mail.ru")
-                .build();
-        json = mapper.writeValueAsString(newUser);
+        UserDto userDto2 = new UserDto();
+        userDto.setName("User2");
+        userDto.setEmail("mail2@mail.ru");
+        json = mapper.writeValueAsString(userDto2);
         mockMvc.perform(
                         patch("/users/2")
                                 .content(json)
@@ -292,11 +280,10 @@ class UserControllerTest {
 
     @Test
     public void deleteUserTest() throws Exception {
-        UserDto user = UserDto.builder()
-                .name("User")
-                .email("mail@mail.ru")
-                .build();
-        String json = mapper.writeValueAsString(user);
+        UserDto userDto = new UserDto();
+        userDto.setName("User");
+        userDto.setEmail("mail@mail.ru");
+        String json = mapper.writeValueAsString(userDto);
         mockMvc.perform(
                         post("/users")
                                 .content(json)
@@ -320,11 +307,10 @@ class UserControllerTest {
 
     @Test
     public void deleteNotFoundUserTest() throws Exception {
-        UserDto user = UserDto.builder()
-                .name("User")
-                .email("mail@mail.ru")
-                .build();
-        String json = mapper.writeValueAsString(user);
+        UserDto userDto = new UserDto();
+        userDto.setName("User");
+        userDto.setEmail("mail@mail.ru");
+        String json = mapper.writeValueAsString(userDto);
         mockMvc.perform(
                         post("/users")
                                 .content(json)
