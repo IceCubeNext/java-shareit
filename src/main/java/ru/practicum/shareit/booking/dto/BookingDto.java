@@ -22,6 +22,7 @@ public class BookingDto {
     private BookingStatus status;
     private Booker booker;
     private Item item;
+
     @Getter
     @Setter
     @NoArgsConstructor
