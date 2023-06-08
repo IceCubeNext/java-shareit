@@ -44,7 +44,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "limit 1", nativeQuery = true)
     Booking findNextBooking(Long itemId);
 
-    List<Booking> findFirstByStartBeforeAndStatusEqualsAndItemInOrderByEndDesc(LocalDateTime time, BookingStatus status, List<Item> items);
+    List<Booking> findFirstByStartLessThanEqualAndStatusEqualsAndItemInOrderByEndDesc(LocalDateTime time, BookingStatus status, List<Item> items);
 
     List<Booking> findFirstByStartAfterAndStatusEqualsAndItemInOrderByStart(LocalDateTime time, BookingStatus status, List<Item> items);
 

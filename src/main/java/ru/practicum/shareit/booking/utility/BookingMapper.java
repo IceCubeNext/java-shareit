@@ -6,9 +6,7 @@ import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.item.dto.ItemShortDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.dto.UserShortDto;
 import ru.practicum.shareit.user.model.User;
 
 @UtilityClass
@@ -29,8 +27,8 @@ public class BookingMapper {
                 booking.getStart(),
                 booking.getEnd(),
                 booking.getStatus(),
-                new UserShortDto(booking.getBooker().getId(), booking.getBooker().getName()),
-                new ItemShortDto(booking.getItem().getId(), booking.getItem().getName())
+                new BookingDto.Booker(booking.getBooker().getId(), booking.getBooker().getName()),
+                new BookingDto.Item(booking.getItem().getId(), booking.getItem().getName())
         );
     }
 

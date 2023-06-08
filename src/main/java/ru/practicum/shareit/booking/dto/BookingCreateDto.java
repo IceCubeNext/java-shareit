@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 public class BookingCreateDto {
     @FutureOrPresent(groups = {Marker.OnCreate.class}, message = "Start of booking should not be in the past")
     private LocalDateTime start;
-    @FutureOrPresent(groups = {Marker.OnCreate.class}, message = "End of booking should not be in the past")
     private LocalDateTime end;
     @NotNull(groups = {Marker.OnCreate.class}, message = "Item of booking should not be null")
     private Long itemId;

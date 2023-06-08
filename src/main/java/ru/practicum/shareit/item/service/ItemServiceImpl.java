@@ -26,8 +26,8 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
+import static java.util.function.UnaryOperator.identity;
+import static java.util.stream.Collectors.*;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
@@ -70,36 +70,36 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .collect(groupingBy(Comment::getItem, toList()));
 
-        Map<Item, List<Booking>> lasts = bookingRepository.findFirstByStartBeforeAndStatusEqualsAndItemInOrderByEndDesc(
-                        LocalDateTime.now(), BookingStatus.APPROVED, items)
+        LocalDateTime currentTime = LocalDateTime.now();
+        Map<Item, Booking> lasts = bookingRepository.findFirstByStartLessThanEqualAndStatusEqualsAndItemInOrderByEndDesc(
+                        currentTime, BookingStatus.APPROVED, items)
                 .stream()
-                .collect(groupingBy(Booking::getItem, toList()));
+                .collect(toMap(Booking::getItem, identity(), (o, n) -> o));
 
-        Map<Item, List<Booking>> following = bookingRepository.findFirstByStartAfterAndStatusEqualsAndItemInOrderByStart(
-                        LocalDateTime.now(), BookingStatus.APPROVED, items)
+        Map<Item, Booking> following = bookingRepository.findFirstByStartAfterAndStatusEqualsAndItemInOrderByStart(
+                        currentTime, BookingStatus.APPROVED, items)
                 .stream()
-                .collect(groupingBy(Booking::getItem, toList()));
+                .collect(toMap(Booking::getItem, identity(), (o, n) -> o));
 
         List<ItemInfoDto> itemsInfoDto = new ArrayList<>();
         for (Item item : items) {
             ItemInfoDto itemDto = ItemMapper.mapToItemInfoDto(item);
-            if (comments.containsKey(item)) {
-                itemDto.setComments(comments.get(item).stream().map(ItemMapper::mapToCommentDto).collect(toList()));
-            } else {
-                itemDto.setComments(Collections.emptyList());
-            }
+            itemDto.setComments(comments.getOrDefault(item, Collections.emptyList())
+                    .stream()
+                    .map(ItemMapper::mapToCommentDto)
+                    .collect(toList()));
 
             if (lasts.containsKey(item)) {
-                if (lasts.get(item).size() > 0) {
-                    Booking last = lasts.get(item).get(0);
+                if (lasts.get(item) != null) {
+                    Booking last = lasts.get(item);
                     BookingShortDto bookingShortDtoLast = BookingMapper.mapToBookingShortDto(last);
                     itemDto.setLastBooking(bookingShortDtoLast);
                 }
             }
 
             if (following.containsKey(item)) {
-                if (following.get(item).size() > 0) {
-                    Booking next = following.get(item).get(0);
+                if (following.get(item) != null) {
+                    Booking next = following.get(item);
                     BookingShortDto bookingShortDtoNext = BookingMapper.mapToBookingShortDto(next);
                     itemDto.setNextBooking(bookingShortDtoNext);
                 }
