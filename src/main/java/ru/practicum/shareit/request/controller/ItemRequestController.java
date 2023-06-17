@@ -32,13 +32,8 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public List<RequestDto> getUserRequests(@RequestParam(defaultValue = "0") Integer from,
-                                            @RequestParam(defaultValue = "10") Integer size,
-                                            @RequestHeader("X-Sharer-User-Id") Long userId) {
-        if (from < 0 || size < 0) {
-            throw new IllegalArgumentException("Page parameters incorrect");
-        }
-        return itemRequestService.getUserRequests(userId, from, size);
+    public List<RequestDto> getUserRequests(@RequestHeader("X-Sharer-User-Id") Long userId) {
+        return itemRequestService.getUserRequests(userId);
     }
 
     @PostMapping

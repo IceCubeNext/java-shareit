@@ -46,10 +46,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<RequestDto> getUserRequests(Long userId, Integer from, Integer size) {
+    public List<RequestDto> getUserRequests(Long userId) {
         User user = getUser(userId);
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-        List<Request> requests = itemRequestRepository.findAllByRequestorOrderByCreatedDesc(user, page).getContent();
+        List<Request> requests = itemRequestRepository.findAllByRequestorOrderByCreatedDesc(user);
 
         Map<Request, List<Item>> items = itemRepository.findByRequestIn(requests, Sort.by(ASC, "id"))
                 .stream()

@@ -6,8 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.List;
+
 
 public interface ItemRequestRepository extends JpaRepository<Request, Long> {
-    Page<Request> findAllByRequestorOrderByCreatedDesc(User requestor, Pageable page);
+    List<Request> findAllByRequestorOrderByCreatedDesc(User requestor);
     Page<Request> findAllByRequestorNotOrderByCreatedDesc(User requestor, Pageable page);
 }
