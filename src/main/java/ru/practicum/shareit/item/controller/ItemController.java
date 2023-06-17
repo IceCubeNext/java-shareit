@@ -25,13 +25,23 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemInfoDto> getItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemService.getItemsByUserId(userId);
+    public List<ItemInfoDto> getItems(@RequestParam(defaultValue = "0") Integer from,
+                                      @RequestParam(defaultValue = "10") Integer size,
+                                      @RequestHeader("X-Sharer-User-Id") Long userId) {
+        if (from < 0 || size < 0) {
+            throw new IllegalArgumentException("Page parameters incorrect");
+        }
+        return itemService.getItemsByUserId(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItems(@RequestParam(value = "text") String text) {
-        return itemService.searchItems(text);
+    public List<ItemDto> searchItems(@RequestParam(defaultValue = "0") Integer from,
+                                     @RequestParam(defaultValue = "10") Integer size,
+                                     @RequestParam(value = "text") String text) {
+        if (from < 0 || size < 0) {
+            throw new IllegalArgumentException("Page parameters incorrect");
+        }
+        return itemService.searchItems(text, from, size);
     }
 
     @PostMapping

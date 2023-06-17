@@ -22,4 +22,5 @@ public class ItemDto {
     @NotNull(groups = {Marker.OnCreate.class}, message = "Available should not be null")
     private Boolean available;
     private Long owner;
+    private Long requestId;
 }

@@ -24,15 +24,25 @@ public class BookingController {
     }
 
     @GetMapping
-    List<BookingDto> getUserBookings(@RequestParam(value = "state", defaultValue = "ALL") BookingState state,
+    List<BookingDto> getUserBookings(@RequestParam(defaultValue = "0") Integer from,
+                                     @RequestParam(defaultValue = "10") Integer size,
+                                     @RequestParam(value = "state", defaultValue = "ALL") BookingState state,
                                      @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return bookingService.getUserBookings(userId, state);
+        if (from < 0 || size < 0) {
+            throw new IllegalArgumentException("Page parameters incorrect");
+        }
+        return bookingService.getUserBookings(userId, state, from, size);
     }
 
     @GetMapping("/owner")
-    List<BookingDto> getBookingsByOwner(@RequestParam(value = "state", defaultValue = "ALL") BookingState state,
+    List<BookingDto> getBookingsByOwner(@RequestParam(defaultValue = "0") Integer from,
+                                        @RequestParam(defaultValue = "10") Integer size,
+                                        @RequestParam(value = "state", defaultValue = "ALL") BookingState state,
                                         @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return bookingService.getBookingsByOwner(userId, state);
+        if (from < 0 || size < 0) {
+            throw new IllegalArgumentException("Page parameters incorrect");
+        }
+        return bookingService.getBookingsByOwner(userId, state, from, size);
     }
 
     @PostMapping

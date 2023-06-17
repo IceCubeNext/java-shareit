@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,8 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.utility.ItemMapper;
+import ru.practicum.shareit.request.model.Request;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -37,6 +40,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Transactional(readOnly = true)
     @Override
@@ -62,9 +66,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<ItemInfoDto> getItemsByUserId(Long userId) {
+    public List<ItemInfoDto> getItemsByUserId(Long userId, Integer from, Integer size) {
         User user = getUser(userId);
-        List<Item> items = itemRepository.findAllByOwnerOrderById(user);
+        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        List<Item> items = itemRepository.findAllByOwnerOrderById(user, page).getContent();
 
         Map<Item, List<Comment>> comments = commentRepository.findByItemIn(items, Sort.by(DESC, "created"))
                 .stream()
@@ -111,11 +116,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public List<ItemDto> searchItems(String text) {
+    public List<ItemDto> searchItems(String text, Integer from, Integer size) {
         if (text.isBlank()) {
             return Collections.emptyList();
         }
-        return ItemMapper.mapToItemDto(itemRepository.findText(text));
+        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        return itemRepository.findText(text, page)
+                .map(ItemMapper::mapToItemDto)
+                .getContent();
     }
 
     @Transactional
@@ -123,6 +131,10 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto addItem(Long userId, ItemDto itemDto) {
         User user = getUser(userId);
         Item item = ItemMapper.mapToItem(itemDto, user);
+        if (itemDto.getRequestId() != null) {
+            Request request = getRequest(itemDto.getRequestId());
+            item.setRequest(request);
+        }
         item.setOwner(user);
         return ItemMapper.mapToItemDto(itemRepository.save(item));
     }
@@ -173,5 +185,10 @@ public class ItemServiceImpl implements ItemService {
     private Item getItem(Long id) {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Item with id=%d not found", id)));
+    }
+
+    private Request getRequest(Long id) {
+        return itemRequestRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Request with id=%d not found", id)));
     }
 }
