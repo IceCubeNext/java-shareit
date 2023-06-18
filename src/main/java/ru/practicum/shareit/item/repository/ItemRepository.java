@@ -22,6 +22,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     Page<Item> findText(String text, Pageable page);
 
     List<Item> findAllByRequestOrderByRequestCreatedDesc(Request request);
+
     Page<Item> findAllByOwnerOrderById(User user, Pageable page);
+
     List<Item> findByRequestIn(List<Request> requests, Sort sort);
 }

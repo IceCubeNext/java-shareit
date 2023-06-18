@@ -7,8 +7,6 @@ import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class RequestMapper {
@@ -28,9 +26,5 @@ public class RequestMapper {
                 request.getCreated(),
                 Collections.emptyList()
         );
-    }
-
-    public List<RequestDto> mapToRequestDto(List<Request> requests) {
-        return requests.stream().map(RequestMapper::mapToRequestDto).collect(Collectors.toList());
     }
 }

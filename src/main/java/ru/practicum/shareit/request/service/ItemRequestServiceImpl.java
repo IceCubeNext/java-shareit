@@ -49,20 +49,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<RequestDto> getUserRequests(Long userId) {
         User user = getUser(userId);
         List<Request> requests = itemRequestRepository.findAllByRequestorOrderByCreatedDesc(user);
-
-        Map<Request, List<Item>> items = itemRepository.findByRequestIn(requests, Sort.by(ASC, "id"))
-                .stream()
-                .collect(groupingBy(Item::getRequest, toList()));
-
-        List<RequestDto> requestsDto = new ArrayList<>();
-        for (Request request: requests) {
-            RequestDto requestDto = RequestMapper.mapToRequestDto(request);
-            if (items.get(request) != null) {
-                requestDto.setItems(items.get(request).stream().map(ItemMapper::mapToItemDto).collect(toList()));
-            }
-            requestsDto.add(requestDto);
-        }
-        return requestsDto;
+        return setItemsInRequest(requests);
     }
 
     @Override
@@ -71,19 +58,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User user = getUser(userId);
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         List<Request> requests = itemRequestRepository.findAllByRequestorNotOrderByCreatedDesc(user, page).getContent();
-        Map<Request, List<Item>> items = itemRepository.findByRequestIn(requests, Sort.by(ASC, "id"))
-                .stream()
-                .collect(groupingBy(Item::getRequest, toList()));
-
-        List<RequestDto> requestsDto = new ArrayList<>();
-        for (Request request: requests) {
-            RequestDto requestDto = RequestMapper.mapToRequestDto(request);
-            if (items.get(request) != null) {
-                requestDto.setItems(items.get(request).stream().map(ItemMapper::mapToItemDto).collect(toList()));
-            }
-            requestsDto.add(requestDto);
-        }
-        return requestsDto;
+        return setItemsInRequest(requests);
     }
 
     @Override
@@ -92,6 +67,22 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User user = getUser(userId);
         Request request = RequestMapper.mapToRequest(requestDto, user);
         return RequestMapper.mapToRequestDto(itemRequestRepository.save(request));
+    }
+
+    private List<RequestDto> setItemsInRequest(List<Request> requests) {
+        Map<Request, List<Item>> items = itemRepository.findByRequestIn(requests, Sort.by(ASC, "id"))
+                .stream()
+                .collect(groupingBy(Item::getRequest, toList()));
+
+        List<RequestDto> requestsDto = new ArrayList<>();
+        for (Request request : requests) {
+            RequestDto requestDto = RequestMapper.mapToRequestDto(request);
+            if (items.get(request) != null) {
+                requestDto.setItems(items.get(request).stream().map(ItemMapper::mapToItemDto).collect(toList()));
+            }
+            requestsDto.add(requestDto);
+        }
+        return requestsDto;
     }
 
     private User getUser(Long id) {

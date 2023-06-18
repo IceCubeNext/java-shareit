@@ -44,9 +44,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public List<BookingDto> getUserBookings(Long userId, BookingState state, Integer from, Integer size) {
-        if (!userRepository.existsById(userId)) {
-            throw new NotFoundException(String.format("User with id=%d not found", userId));
-        }
+        getUser(userId);
         LocalDateTime currentTime = LocalDateTime.now();
         Page<Booking> bookings;
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
@@ -78,9 +76,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public List<BookingDto> getBookingsByOwner(Long ownerId, BookingState state, Integer from, Integer size) {
-        if (!userRepository.existsById(ownerId)) {
-            throw new NotFoundException(String.format("User with id=%d not found", ownerId));
-        }
+        getUser(ownerId);
         LocalDateTime currentTime = LocalDateTime.now();
         Page<Booking> bookings;
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);

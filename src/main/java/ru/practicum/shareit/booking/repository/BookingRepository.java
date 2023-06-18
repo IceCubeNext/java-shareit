@@ -55,5 +55,4 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "where b.end_time <= now() and i.id = ? and b.booker_id = ? and b.status = 'APPROVED'" +
             "limit 1", nativeQuery = true)
     Booking findCompletedBooking(Long itemId, Long bookerId);
-    
 }
