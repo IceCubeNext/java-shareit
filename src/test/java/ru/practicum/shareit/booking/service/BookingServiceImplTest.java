@@ -105,7 +105,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    public void getBookingByIdUnknownId () {
+    public void getBookingByIdUnknownId() {
         when(bookingRepository.findById(99L))
                 .thenThrow(NotFoundException.class);
         assertThrows(NotFoundException.class, () -> bookingService.getBookingById(99L, booker.getId()));
