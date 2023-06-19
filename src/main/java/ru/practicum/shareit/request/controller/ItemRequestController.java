@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.validation.Marker;
+import ru.practicum.shareit.validation.PageValidation;
 
 import java.util.List;
 
@@ -25,9 +26,7 @@ public class ItemRequestController {
     public List<RequestDto> getRequests(@RequestParam(defaultValue = "0") Integer from,
                                         @RequestParam(defaultValue = "10") Integer size,
                                         @RequestHeader("X-Sharer-User-Id") Long userId) {
-        if (from < 0 || size < 0) {
-            throw new IllegalArgumentException("Page parameters incorrect");
-        }
+        PageValidation.validatePageParameters(from, size);
         return itemRequestService.getRequests(userId, from, size);
     }
 

@@ -23,7 +23,7 @@ import ru.practicum.shareit.item.utility.ItemMapper;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ItemServiceImplTest {
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
     @Mock
     private ItemRepository itemRepository;
     @Mock
@@ -135,8 +135,45 @@ class ItemServiceImplTest {
     }
 
     @Test
+    public void getItemByIdLastNotNull() {
+        when(itemRepository.findById(item.getId()))
+                .thenReturn(Optional.ofNullable(item));
+        when(bookingRepository.findLastBooking(item.getId()))
+                .thenReturn(booking);
+
+        ItemInfoDto actual = itemService.getItemById(item.getId(), owner.getId());
+
+        assertEquals(booking.getId(), actual.getLastBooking().getId());
+        assertNull(actual.getNextBooking());
+    }
+
+    @Test
+    public void getItemByIdNextNotNull() {
+        when(itemRepository.findById(item.getId()))
+                .thenReturn(Optional.ofNullable(item));
+        when(bookingRepository.findNextBooking(item.getId()))
+                .thenReturn(booking);
+
+        ItemInfoDto actual = itemService.getItemById(item.getId(), owner.getId());
+
+        assertEquals(booking.getId(), actual.getNextBooking().getId());
+        assertNull(actual.getLastBooking());
+    }
+
+    @Test
+    public void getItemByIdNotOwnerCheckLastNext() {
+        when(itemRepository.findById(item.getId()))
+                .thenReturn(Optional.ofNullable(item));
+
+        ItemInfoDto actual = itemService.getItemById(item.getId(), booker.getId());
+
+        assertNull(actual.getLastBooking());
+        assertNull(actual.getNextBooking());
+    }
+
+    @Test
     public void getItemsByUserIdNotFoundUser() {
-        when(userRepository.findById(99L))
+        when(userService.getUser(99L))
                 .thenThrow(NotFoundException.class);
 
         assertThrows(NotFoundException.class, () -> itemService.getItemsByUserId(99L, 0, 10));
@@ -169,8 +206,8 @@ class ItemServiceImplTest {
 
     @Test
     public void addItemWithoutRequest() {
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(itemRepository.save(any()))
                 .thenReturn(item);
@@ -185,8 +222,8 @@ class ItemServiceImplTest {
     public void addItemWithRequest() {
         Request request = new Request();
         request.setId(11L);
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(itemRequestRepository.findById(any()))
                 .thenReturn(Optional.of(request));
@@ -204,7 +241,7 @@ class ItemServiceImplTest {
 
     @Test
     public void addItemUserNotFound() {
-        when(userRepository.findById(99L))
+        when(userService.getUser(99L))
                 .thenThrow(NotFoundException.class);
 
         assertThrows(NotFoundException.class, () -> itemService.addItem(99L, ItemMapper.mapToItemDto(item)));
@@ -212,7 +249,7 @@ class ItemServiceImplTest {
 
     @Test
     public void addCommentUserNotFound() {
-        when(userRepository.findById(99L))
+        when(userService.getUser(99L))
                 .thenThrow(NotFoundException.class);
 
         assertThrows(NotFoundException.class, () -> itemService.addComment(99L, item.getId(), new CommentCreateDto("text")));
@@ -220,9 +257,6 @@ class ItemServiceImplTest {
 
     @Test
     public void addCommentItemNotFound() {
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
-
         when(itemRepository.findById(99L))
                 .thenThrow(NotFoundException.class);
 

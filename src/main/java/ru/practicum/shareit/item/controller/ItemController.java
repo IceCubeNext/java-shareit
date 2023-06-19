@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.dto.ItemInfoDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.validation.Marker;
+import ru.practicum.shareit.validation.PageValidation;
 
 import java.util.List;
 
@@ -28,9 +29,7 @@ public class ItemController {
     public List<ItemInfoDto> getItems(@RequestParam(defaultValue = "0") Integer from,
                                       @RequestParam(defaultValue = "10") Integer size,
                                       @RequestHeader("X-Sharer-User-Id") Long userId) {
-        if (from < 0 || size < 0) {
-            throw new IllegalArgumentException("Page parameters incorrect");
-        }
+        PageValidation.validatePageParameters(from, size);
         return itemService.getItemsByUserId(userId, from, size);
     }
 
@@ -38,9 +37,7 @@ public class ItemController {
     public List<ItemDto> searchItems(@RequestParam(defaultValue = "0") Integer from,
                                      @RequestParam(defaultValue = "10") Integer size,
                                      @RequestParam(value = "text") String text) {
-        if (from < 0 || size < 0) {
-            throw new IllegalArgumentException("Page parameters incorrect");
-        }
+        PageValidation.validatePageParameters(from, size);
         return itemService.searchItems(text, from, size);
     }
 

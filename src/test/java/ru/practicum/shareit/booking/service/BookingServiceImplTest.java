@@ -19,7 +19,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,7 +35,7 @@ class BookingServiceImplTest {
     @Mock
     private BookingRepository bookingRepository;
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
     @Mock
     private ItemRepository itemRepository;
     @InjectMocks
@@ -105,8 +105,15 @@ class BookingServiceImplTest {
     }
 
     @Test
+    public void getBookingByIdUnknownId () {
+        when(bookingRepository.findById(99L))
+                .thenThrow(NotFoundException.class);
+        assertThrows(NotFoundException.class, () -> bookingService.getBookingById(99L, booker.getId()));
+    }
+
+    @Test
     public void getUserBookingsUserNotFound() {
-        when(userRepository.findById(99L))
+        when(userService.getUser(99L))
                 .thenThrow(NotFoundException.class);
         assertThrows(NotFoundException.class, () -> bookingService.getUserBookings(99L, BookingState.ALL, 0, 10));
     }
@@ -119,8 +126,8 @@ class BookingServiceImplTest {
     @Test
     public void getUserBookingsAllStatus() {
         final Page<Booking> page = new PageImpl<>(List.of(booking));
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(bookingRepository.findAllByBookerIdOrderByStartDesc(eq(booking.getId()), any()))
                 .thenReturn(page);
@@ -136,8 +143,8 @@ class BookingServiceImplTest {
     @Test
     public void getUserBookingsCurrentStatus() {
         final Page<Booking> page = new PageImpl<>(List.of(booking));
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(eq(booking.getId()), any(), any(), any()))
                 .thenReturn(page);
@@ -153,8 +160,8 @@ class BookingServiceImplTest {
     @Test
     public void getUserBookingsPastStatus() {
         final Page<Booking> page = new PageImpl<>(List.of(booking));
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(eq(booking.getId()), any(), any()))
                 .thenReturn(page);
@@ -170,8 +177,8 @@ class BookingServiceImplTest {
     @Test
     public void getUserBookingsFutureStatus() {
         final Page<Booking> page = new PageImpl<>(List.of(booking));
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(eq(booking.getId()), any(), any()))
                 .thenReturn(page);
@@ -187,8 +194,8 @@ class BookingServiceImplTest {
     @Test
     public void getUserBookingsWaitingStatus() {
         final Page<Booking> page = new PageImpl<>(List.of(booking));
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(eq(booking.getId()), any(), any()))
                 .thenReturn(page);
@@ -204,8 +211,8 @@ class BookingServiceImplTest {
     @Test
     public void getUserBookingsRejectedStatus() {
         final Page<Booking> page = new PageImpl<>(List.of(booking));
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(eq(booking.getId()), any(), any()))
                 .thenReturn(page);
@@ -226,8 +233,8 @@ class BookingServiceImplTest {
     @Test
     public void getUserBookingsByOwnerAllStatus() {
         final Page<Booking> page = new PageImpl<>(List.of(booking));
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(bookingRepository.findAllByItemOwnerIdOrderByStartDesc(eq(booking.getId()), any()))
                 .thenReturn(page);
@@ -243,8 +250,8 @@ class BookingServiceImplTest {
     @Test
     public void getUserBookingsByOwnerCurrentStatus() {
         final Page<Booking> page = new PageImpl<>(List.of(booking));
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(eq(booking.getId()), any(), any(), any()))
                 .thenReturn(page);
@@ -260,8 +267,8 @@ class BookingServiceImplTest {
     @Test
     public void getUserBookingsByOwnerPastStatus() {
         final Page<Booking> page = new PageImpl<>(List.of(booking));
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(eq(booking.getId()), any(), any()))
                 .thenReturn(page);
@@ -277,8 +284,8 @@ class BookingServiceImplTest {
     @Test
     public void getUserBookingsByOwnerFutureStatus() {
         final Page<Booking> page = new PageImpl<>(List.of(booking));
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(eq(booking.getId()), any(), any()))
                 .thenReturn(page);
@@ -294,8 +301,8 @@ class BookingServiceImplTest {
     @Test
     public void getUserBookingsByOwnerWaitingStatus() {
         final Page<Booking> page = new PageImpl<>(List.of(booking));
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(eq(booking.getId()), any(), any()))
                 .thenReturn(page);
@@ -311,8 +318,8 @@ class BookingServiceImplTest {
     @Test
     public void getUserBookingsByOwnerRejectedStatus() {
         final Page<Booking> page = new PageImpl<>(List.of(booking));
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(eq(booking.getId()), any(), any()))
                 .thenReturn(page);
@@ -327,8 +334,8 @@ class BookingServiceImplTest {
 
     @Test
     public void addBookings() {
-        when(userRepository.findById(booker.getId()))
-                .thenReturn(Optional.ofNullable(booker));
+        when(userService.getUser(booker.getId()))
+                .thenReturn(booker);
 
         when(itemRepository.findById(item.getId()))
                 .thenReturn(Optional.ofNullable(item));
@@ -351,8 +358,8 @@ class BookingServiceImplTest {
 
     @Test
     public void addBookingsOwnerBookOwnItem() {
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         when(itemRepository.findById(item.getId()))
                 .thenReturn(Optional.ofNullable(item));
@@ -367,8 +374,8 @@ class BookingServiceImplTest {
 
     @Test
     public void addBookingsItemUnavailable() {
-        when(userRepository.findById(booker.getId()))
-                .thenReturn(Optional.ofNullable(booker));
+        when(userService.getUser(booker.getId()))
+                .thenReturn(booker);
 
         when(itemRepository.findById(item.getId()))
                 .thenReturn(Optional.ofNullable(item));
@@ -385,7 +392,7 @@ class BookingServiceImplTest {
 
     @Test
     public void addBookingsUserNotFound() {
-        when(userRepository.findById(99L))
+        when(userService.getUser(99L))
                 .thenThrow(NotFoundException.class);
 
         BookingCreateDto bookingCreateDto = new BookingCreateDto();
@@ -398,8 +405,8 @@ class BookingServiceImplTest {
 
     @Test
     public void addBookingsItemNotFound() {
-        when(userRepository.findById(booker.getId()))
-                .thenReturn(Optional.ofNullable(booker));
+        when(userService.getUser(booker.getId()))
+                .thenReturn(booker);
 
         when(itemRepository.findById(99L))
                 .thenThrow(NotFoundException.class);
@@ -417,8 +424,8 @@ class BookingServiceImplTest {
         when(bookingRepository.findById(booking.getId()))
                 .thenReturn(Optional.ofNullable(booking));
 
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         BookingDto actual = bookingService.updateBooking(booking.getId(), owner.getId(), true);
         BookingDto expected = BookingMapper.mapToBookingDto(booking);
@@ -434,8 +441,8 @@ class BookingServiceImplTest {
         when(bookingRepository.findById(booking.getId()))
                 .thenReturn(Optional.ofNullable(booking));
 
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         BookingDto actual = bookingService.updateBooking(booking.getId(), owner.getId(), false);
         BookingDto expected = BookingMapper.mapToBookingDto(booking);
@@ -460,7 +467,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findById(booking.getId()))
                 .thenReturn(Optional.ofNullable(booking));
 
-        when(userRepository.findById(99L))
+        when(userService.getUser(99L))
                 .thenThrow(NotFoundException.class);
 
         assertThrows(NotFoundException.class, () -> bookingService.updateBooking(booking.getId(), 99L, true));
@@ -471,8 +478,8 @@ class BookingServiceImplTest {
         when(bookingRepository.findById(booking.getId()))
                 .thenReturn(Optional.ofNullable(booking));
 
-        when(userRepository.findById(booker.getId()))
-                .thenReturn(Optional.ofNullable(booker));
+        when(userService.getUser(booker.getId()))
+                .thenReturn(booker);
 
         assertThrows(NotFoundException.class, () -> bookingService.updateBooking(booking.getId(), booker.getId(), true));
     }
@@ -482,8 +489,8 @@ class BookingServiceImplTest {
         when(bookingRepository.findById(booking.getId()))
                 .thenReturn(Optional.ofNullable(booking));
 
-        when(userRepository.findById(owner.getId()))
-                .thenReturn(Optional.ofNullable(owner));
+        when(userService.getUser(owner.getId()))
+                .thenReturn(owner);
 
         booking.setStatus(BookingStatus.CANCELED);
 

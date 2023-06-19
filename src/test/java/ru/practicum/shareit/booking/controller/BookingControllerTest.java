@@ -269,6 +269,25 @@ class BookingControllerTest {
     }
 
     @Test
+    public void addBookingWrongStartEnd() throws Exception {
+        BookingCreateDto bookingCreateDto = new BookingCreateDto();
+        bookingCreateDto.setStart(LocalDateTime.now().plusHours(1));
+        bookingCreateDto.setEnd(LocalDateTime.now().minusHours(1));
+        bookingCreateDto.setItemId(1L);
+        mapper.registerModule(new JavaTimeModule());
+
+        mvc.perform(
+                        post("/bookings")
+                                .header("X-Sharer-User-Id", "1")
+                                .content(mapper.writeValueAsString(bookingCreateDto))
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void addBookingWithoutUserId() throws Exception {
         BookingCreateDto bookingCreateDto = new BookingCreateDto();
         bookingCreateDto.setStart(LocalDateTime.now().plusHours(1));

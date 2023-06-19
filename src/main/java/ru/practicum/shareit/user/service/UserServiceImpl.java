@@ -26,6 +26,13 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
+    public User getUser(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("User with id=%d not found", id)));
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public List<UserDto> getUsers() {
         return UserMapper.mapToUserDto(userRepository.findAll());
     }
@@ -55,10 +62,5 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long id) {
         User user = getUser(id);
         userRepository.delete(user);
-    }
-
-    private User getUser(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("User with id=%d not found", id)));
     }
 }

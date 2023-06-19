@@ -30,6 +30,5 @@ class BookingDtoTest {
 
         assertThat(actual).extractingJsonPathStringValue("$.start").isEqualTo("2023-06-18T12:00:00");
         assertThat(actual).extractingJsonPathStringValue("$.end").isEqualTo("2023-06-19T12:00:00");
-
     }
 }

@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.validation.Marker;
+import ru.practicum.shareit.validation.PageValidation;
 
 import java.util.List;
 
@@ -28,9 +29,7 @@ public class BookingController {
                                      @RequestParam(defaultValue = "10") Integer size,
                                      @RequestParam(value = "state", defaultValue = "ALL") BookingState state,
                                      @RequestHeader("X-Sharer-User-Id") Long userId) {
-        if (from < 0 || size < 0) {
-            throw new IllegalArgumentException("Page parameters incorrect");
-        }
+        PageValidation.validatePageParameters(from, size);
         return bookingService.getUserBookings(userId, state, from, size);
     }
 
@@ -39,9 +38,7 @@ public class BookingController {
                                         @RequestParam(defaultValue = "10") Integer size,
                                         @RequestParam(value = "state", defaultValue = "ALL") BookingState state,
                                         @RequestHeader("X-Sharer-User-Id") Long userId) {
-        if (from < 0 || size < 0) {
-            throw new IllegalArgumentException("Page parameters incorrect");
-        }
+        PageValidation.validatePageParameters(from, size);
         return bookingService.getBookingsByOwner(userId, state, from, size);
     }
 

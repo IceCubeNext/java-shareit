@@ -14,7 +14,7 @@ import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.request.utility.RequestMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,14 +29,14 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final ItemRepository itemRepository;
 
     @Override
     @Transactional(readOnly = true)
     public RequestDto getRequestById(Long id, Long userId) {
         Request request = getRequest(id);
-        getUser(userId);
+        userService.getUser(userId);
         RequestDto requestDto = RequestMapper.mapToRequestDto(request);
         requestDto.setItems(itemRepository.findAllByRequestOrderByRequestCreatedDesc(request).stream()
                 .map(ItemMapper::mapToItemDto)
@@ -47,7 +47,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @Transactional(readOnly = true)
     public List<RequestDto> getUserRequests(Long userId) {
-        User user = getUser(userId);
+        User user = userService.getUser(userId);
         List<Request> requests = itemRequestRepository.findAllByRequestorOrderByCreatedDesc(user);
         return setItemsInRequest(requests);
     }
@@ -55,7 +55,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @Transactional(readOnly = true)
     public List<RequestDto> getRequests(Long userId, Integer from, Integer size) {
-        User user = getUser(userId);
+        User user = userService.getUser(userId);
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         List<Request> requests = itemRequestRepository.findAllByRequestorNotOrderByCreatedDesc(user, page).getContent();
         return setItemsInRequest(requests);
@@ -64,7 +64,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @Transactional
     public RequestDto addRequest(RequestDto requestDto, Long userId) {
-        User user = getUser(userId);
+        User user = userService.getUser(userId);
         Request request = RequestMapper.mapToRequest(requestDto, user);
         return RequestMapper.mapToRequestDto(itemRequestRepository.save(request));
     }
@@ -83,11 +83,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             requestsDto.add(requestDto);
         }
         return requestsDto;
-    }
-
-    private User getUser(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("User with id=%d not found", id)));
     }
 
     private Request getRequest(Long id) {

@@ -16,7 +16,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.Objects;
 @AllArgsConstructor
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final ItemRepository itemRepository;
 
     @Override
@@ -44,7 +44,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public List<BookingDto> getUserBookings(Long userId, BookingState state, Integer from, Integer size) {
-        getUser(userId);
+        userService.getUser(userId);
         LocalDateTime currentTime = LocalDateTime.now();
         Page<Booking> bookings;
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
@@ -76,7 +76,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public List<BookingDto> getBookingsByOwner(Long ownerId, BookingState state, Integer from, Integer size) {
-        getUser(ownerId);
+        userService.getUser(ownerId);
         LocalDateTime currentTime = LocalDateTime.now();
         Page<Booking> bookings;
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
@@ -108,7 +108,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingDto addBooking(BookingCreateDto bookingDto, Long userId) {
-        User user = getUser(userId);
+        User user = userService.getUser(userId);
         Item item = getItem(bookingDto.getItemId());
         if (Objects.equals(user.getId(), item.getOwner().getId())) {
             throw new NotFoundException(String.format("Item with id=%d is not available", item.getId()));
@@ -124,7 +124,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingDto updateBooking(Long id, Long userId, Boolean isApproved) {
         Booking booking = getBooking(id);
-        User user = getUser(userId);
+        User user = userService.getUser(userId);
         if (booking.getItem().getOwner().equals(user)) {
             if (isApproved) {
                 if (booking.getStatus().equals(BookingStatus.WAITING)) {
@@ -144,11 +144,6 @@ public class BookingServiceImpl implements BookingService {
     private Booking getBooking(Long id) {
         return bookingRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Booking with id=%d not found", id)));
-    }
-
-    private User getUser(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("User with id=%d not found", id)));
     }
 
     private Item getItem(Long id) {

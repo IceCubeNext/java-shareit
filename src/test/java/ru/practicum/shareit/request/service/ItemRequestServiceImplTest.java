@@ -13,7 +13,7 @@ import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.request.utility.RequestMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ItemRequestServiceImplTest {
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
     @Mock
     private ItemRepository itemRepository;
     @Mock
@@ -54,8 +54,8 @@ class ItemRequestServiceImplTest {
         when(itemRequestRepository.findById(request.getId()))
                 .thenReturn(Optional.ofNullable(request));
 
-        when(userRepository.findById(requestor.getId()))
-                .thenReturn(Optional.ofNullable(requestor));
+        when(userService.getUser(requestor.getId()))
+                .thenReturn(requestor);
 
         when(itemRepository.findAllByRequestOrderByRequestCreatedDesc(request))
                 .thenReturn(Collections.emptyList());
@@ -71,7 +71,7 @@ class ItemRequestServiceImplTest {
         when(itemRequestRepository.findById(request.getId()))
                 .thenReturn(Optional.ofNullable(request));
 
-        when(userRepository.findById(99L))
+        when(userService.getUser(99L))
                 .thenThrow(NotFoundException.class);
 
         assertThrows(NotFoundException.class, () -> itemRequestService.getRequestById(request.getId(), 99L));
@@ -87,7 +87,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     public void getUserRequestsUserNotFound() {
-        when(userRepository.findById(99L))
+        when(userService.getUser(99L))
                 .thenThrow(NotFoundException.class);
 
         assertThrows(NotFoundException.class, () -> itemRequestService.getUserRequests(99L));
@@ -95,7 +95,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     public void getRequestsUserNotFound() {
-        when(userRepository.findById(99L))
+        when(userService.getUser(99L))
                 .thenThrow(NotFoundException.class);
 
         assertThrows(NotFoundException.class, () -> itemRequestService.getRequests(99L, 0, 10));
@@ -103,7 +103,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     public void addRequestsUserNotFound() {
-        when(userRepository.findById(99L))
+        when(userService.getUser(99L))
                 .thenThrow(NotFoundException.class);
 
         assertThrows(NotFoundException.class, () -> itemRequestService.addRequest(RequestMapper.mapToRequestDto(request), 99L));
