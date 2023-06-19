@@ -279,5 +279,13 @@ class ItemServiceImplTest {
         assertThrows(NotFoundException.class, () -> itemService.updateItem(booker.getId(), item.getId(), ItemMapper.mapToItemDto(item)));
     }
 
+    @Test
+    public void updateItemNameChanged() {
+        when(itemRepository.findById(item.getId()))
+                .thenReturn(Optional.ofNullable(item));
+
+        assertThrows(NotFoundException.class, () -> itemService.updateItem(booker.getId(), item.getId(), ItemMapper.mapToItemDto(item)));
+    }
+
 }
 
