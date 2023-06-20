@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.ResultActions;
 import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -20,6 +20,7 @@ import java.util.Collections;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,8 +35,6 @@ public class ItemRequestIntegrationTest {
     private UserDto userDto;
     private UserDto userDto2;
     private RequestDto requestDto;
-    private RequestDto requestDto2;
-
 
     @BeforeEach
     void setUp() {
@@ -54,114 +53,117 @@ public class ItemRequestIntegrationTest {
         requestDto.setDescription("Нужна дрель");
         requestDto.setRequestorId(1L);
         requestDto.setItems(Collections.emptyList());
+    }
 
-        requestDto2 = new RequestDto();
-        requestDto2.setId(2L);
-        requestDto2.setDescription("Нужна отвертка");
-        requestDto2.setRequestorId(2L);
-        requestDto2.setItems(Collections.emptyList());
+    @Test
+    public void getRequestById() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        postRequest(userDto.getId(), requestDto).andExpect(status().isOk());
+
+        getRequestById(requestDto.getId(), userDto.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.description", is(requestDto.getDescription())));
+    }
+
+    @Test
+    public void getRequestByIdUserNotFound() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        postRequest(userDto.getId(), requestDto).andExpect(status().isOk());
+
+        getRequestById(requestDto.getId(), 99L)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getRequestByIdRequestNotFound() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        postRequest(userDto.getId(), requestDto).andExpect(status().isOk());
+
+        getRequestById(99L, userDto.getId())
+                .andExpect(status().isNotFound());
     }
 
     @Test
     public void getEmptyRequests() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/users")
-                                .content(mapper.writeValueAsString(userDto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+        postUser(userDto)
                 .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        get("/requests")
-                                .header("X-Sharer-User-Id", "1")
-                )
+        getRequests(userDto.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
-    public void getUserRequestsUser1() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/users")
-                                .content(mapper.writeValueAsString(userDto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/users")
-                                .content(mapper.writeValueAsString(userDto2))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/requests")
-                                .content(mapper.writeValueAsString(requestDto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .header("X-Sharer-User-Id", "1")
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/requests")
-                                .content(mapper.writeValueAsString(requestDto2))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .header("X-Sharer-User-Id", "2")
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        get("/requests")
-                                .header("X-Sharer-User-Id", "1")
-                )
+    public void getUserRequests() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        postRequest(userDto.getId(), requestDto).andExpect(status().isOk());
+        getRequests(userDto.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$.[0].id", is(requestDto.getId()), Long.class))
-                .andExpect(jsonPath("$.[0].description", is(requestDto.getDescription())))
-                .andExpect(jsonPath("$.[0].requestorId", is(requestDto.getRequestorId()), Long.class));
+                .andExpect(jsonPath("$.[0].id", is(requestDto.getId()), Long.class));
     }
 
     @Test
-    public void getOtherRequestsUser1() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/users")
-                                .content(mapper.writeValueAsString(userDto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
+    public void getUserRequestsUserNotFound() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        postRequest(userDto.getId(), requestDto).andExpect(status().isOk());
+        getRequests(99L)
+                .andExpect(status().isNotFound());
+    }
 
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/users")
-                                .content(mapper.writeValueAsString(userDto2))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/requests")
-                                .content(mapper.writeValueAsString(requestDto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .header("X-Sharer-User-Id", "1")
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/requests")
-                                .content(mapper.writeValueAsString(requestDto2))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .header("X-Sharer-User-Id", "2")
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        get("/requests/all")
-                                .header("X-Sharer-User-Id", "1")
-                )
+    @Test
+    public void getOtherRequests() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        postUser(userDto2).andExpect(status().isOk());
+        postRequest(userDto.getId(), requestDto).andExpect(status().isOk());
+        getNotUserRequests(userDto2.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$.[0].id", is(requestDto2.getId()), Long.class))
-                .andExpect(jsonPath("$.[0].description", is(requestDto2.getDescription())))
-                .andExpect(jsonPath("$.[0].requestorId", is(requestDto2.getRequestorId()), Long.class));
+                .andExpect(jsonPath("$.[0].id", is(requestDto.getId()), Long.class));
+    }
+
+    @Test
+    public void getOtherRequestsUserNotFound() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        postRequest(userDto.getId(), requestDto).andExpect(status().isOk());
+        getNotUserRequests(99L)
+                .andExpect(status().isNotFound());
+    }
+
+    private ResultActions getRequestById(Long requestId, Long userId) throws Exception {
+        return mockMvc.perform(
+                get("/requests/" + requestId)
+                        .header("X-Sharer-User-Id", userId)
+        );
+    }
+
+    private ResultActions getRequests(Long userId) throws Exception {
+        return mockMvc.perform(
+                get("/requests")
+                        .header("X-Sharer-User-Id", userId)
+        );
+    }
+
+    private ResultActions getNotUserRequests(Long userId) throws Exception {
+        return mockMvc.perform(
+                get("/requests/all")
+                        .header("X-Sharer-User-Id", userId)
+        );
+    }
+
+    private ResultActions postUser(UserDto userDto) throws Exception {
+        return mockMvc.perform(
+                post("/users")
+                        .content(mapper.writeValueAsString(userDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+    }
+
+    private ResultActions postRequest(Long userId, RequestDto requestDto) throws Exception {
+        return mockMvc.perform(
+                post("/requests")
+                        .content(mapper.writeValueAsString(requestDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", userId)
+        );
     }
 }

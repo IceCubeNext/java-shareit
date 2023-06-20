@@ -1,0 +1,116 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > BookingDto</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">ru.practicum.shareit.booking.dto</a>
+</div>
+
+<h1>Coverage Summary for Class: BookingDto (ru.practicum.shareit.booking.dto)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+</tr>
+  <tr>
+    <td class="name">BookingDto$Booker</td>
+  </tr>
+  <tr>
+    <td class="name">BookingDto$Item</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package ru.practicum.shareit.booking.dto;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonFormat;
+&nbsp;import lombok.AllArgsConstructor;
+&nbsp;import lombok.Getter;
+&nbsp;import lombok.NoArgsConstructor;
+&nbsp;import lombok.Setter;
+&nbsp;import ru.practicum.shareit.booking.model.BookingStatus;
+&nbsp;
+&nbsp;import java.time.LocalDateTime;
+&nbsp;
+&nbsp;@Getter
+&nbsp;@Setter
+&nbsp;@AllArgsConstructor
+&nbsp;@NoArgsConstructor
+&nbsp;public class BookingDto {
+&nbsp;    private Long id;
+&nbsp;    @JsonFormat(pattern = &quot;yyyy-MM-dd&#39;T&#39;HH:mm:ss&quot;)
+&nbsp;    private LocalDateTime start;
+&nbsp;    @JsonFormat(pattern = &quot;yyyy-MM-dd&#39;T&#39;HH:mm:ss&quot;)
+&nbsp;    private LocalDateTime end;
+&nbsp;    private BookingStatus status;
+&nbsp;    private Booker booker;
+&nbsp;    private Item item;
+&nbsp;
+&nbsp;    @Getter
+&nbsp;    @Setter
+&nbsp;    @NoArgsConstructor
+&nbsp;    @AllArgsConstructor
+&nbsp;    public static class Booker {
+&nbsp;        private Long id;
+&nbsp;        private String name;
+&nbsp;    }
+&nbsp;
+&nbsp;    @Getter
+&nbsp;    @Setter
+&nbsp;    @NoArgsConstructor
+&nbsp;    @AllArgsConstructor
+&nbsp;    public static class Item {
+&nbsp;        private Long id;
+&nbsp;        private String name;
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-06-20 00:55</div>
+</div>
+</body>
+</html>

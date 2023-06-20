@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -9,11 +10,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -27,187 +28,112 @@ class UserIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
     private final ObjectMapper mapper = new ObjectMapper();
+    private UserDto userDto;
+    private UserDto userDto2;
 
-    @Test
-    public void getEmptyUsers() throws Exception {
-        mockMvc.perform(
-                        get("/users")
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
+    @BeforeEach
+    void setUp() {
+        userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setName("User");
+        userDto.setEmail("mail@mail.ru");
+
+        userDto2 = new UserDto();
+        userDto2.setId(2L);
+        userDto2.setName("User2");
+        userDto2.setEmail("mail2@mail.ru");
     }
 
     @Test
     public void addNormalUser() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setName("User");
-        userDto.setEmail("mail@mail.ru");
-        String json = mapper.writeValueAsString(userDto);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
+        postUser(userDto).andExpect(status().isOk());
     }
 
     @Test
     public void addUserWithIncorrectEmail() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setName("User");
         userDto.setEmail("mail.ru");
-        String json = mapper.writeValueAsString(userDto);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+        postUser(userDto)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void addUserWithEmptyMail() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setName("User");
         userDto.setEmail("");
-        String json = mapper.writeValueAsString(userDto);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+        postUser(userDto)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void addUserWithBankMail() throws Exception {
+        userDto.setEmail("       ");
+        postUser(userDto)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void addUserWithNullMail() throws Exception {
+        userDto.setEmail(null);
+        postUser(userDto)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void addUserWithEmptyName() throws Exception {
-        UserDto userDto = new UserDto();
         userDto.setName("");
-        userDto.setEmail("mail@mail.ru");
-        String json = mapper.writeValueAsString(userDto);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
+        postUser(userDto)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void addUserWithBankName() throws Exception {
+        userDto.setName("       ");
+        postUser(userDto)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void addUserWithNullName() throws Exception {
+        userDto.setName(null);
+        postUser(userDto)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void addUserWithExistsMail() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setName("User");
-        userDto.setEmail("mail@mail.ru");
-        String json = mapper.writeValueAsString(userDto);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        userDto.setName("User2");
-        userDto.setEmail("mail@mail.ru");
-        json = mapper.writeValueAsString(userDto);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isInternalServerError());
+        postUser(userDto).andExpect(status().isOk());
+        userDto2.setEmail(userDto.getEmail());
+        postUser(userDto2).andExpect(status().isInternalServerError());
     }
 
     @Test
     public void getUserByIdTest() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setName("User");
-        userDto.setEmail("mail@mail.ru");
-
-        UserDto userDto2 = new UserDto();
-        userDto2.setName("User2");
-        userDto2.setEmail("mail2@mail.ru");
-        String json = mapper.writeValueAsString(userDto);
-        String json2 = mapper.writeValueAsString(userDto2);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-        mockMvc.perform(
-                        post("/users")
-                                .content(json2)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        userDto.setId(1L);
-        userDto2.setId(2L);
-        String jsonExpected = mapper.writeValueAsString(userDto);
-        String jsonExpected2 = mapper.writeValueAsString(userDto2);
-
-        MvcResult result2 = mockMvc.perform(
-                        get("/users/2")
-                )
-                .andExpect(status().isOk())
-                .andReturn();
-
-        MvcResult result = mockMvc.perform(
-                        get("/users/1")
-                )
-                .andExpect(status().isOk())
-                .andReturn();
-
-        assertEquals(jsonExpected, result.getResponse().getContentAsString());
-        assertEquals(jsonExpected2, result2.getResponse().getContentAsString());
+        postUser(userDto).andExpect(status().isOk());
+        postUser(userDto2).andExpect(status().isOk());
+        getUserById(userDto.getId()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class));
+        getUserById(userDto2.getId()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(userDto2.getId()), Long.class));
     }
 
     @Test
-    public void getAbsentUserByIdTest() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setName("User");
-        userDto.setEmail("mail@mail.ru");
-        String json = mapper.writeValueAsString(userDto);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
+    public void getUserByIdUserNotFoundTest() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        getUserById(99L).andExpect(status().isNotFound());
+    }
 
-        mockMvc.perform(
-                        get("/users/2")
-                )
-                .andExpect(status().isNotFound());
+    @Test
+    public void getEmptyUsers() throws Exception {
+        getUsers()
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
     public void getUsersTest() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setName("User");
-        userDto.setEmail("mail@mail.ru");
+        postUser(userDto).andExpect(status().isOk());
+        postUser(userDto2).andExpect(status().isOk());
 
-        UserDto userDto2 = new UserDto();
-        userDto2.setName("User2");
-        userDto2.setEmail("mail2@mail.ru");
-        String json = mapper.writeValueAsString(userDto);
-        String json2 = mapper.writeValueAsString(userDto2);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-        mockMvc.perform(
-                        post("/users")
-                                .content(json2)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        get("/users")
-                )
+        getUsers()
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].name").value("User"))
@@ -215,112 +141,114 @@ class UserIntegrationTest {
     }
 
     @Test
-    public void updateUserTest() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setName("User");
-        userDto.setEmail("mail@mail.ru");
+    public void updateUserNameTest() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        userDto.setName("New name");
+        patchUser(userDto.getId(), userDto).andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("New name"));
+    }
 
-        String json = mapper.writeValueAsString(userDto);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
+    @Test
+    public void updateUserNameEmptyNameTest() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        userDto.setName("");
+        patchUser(userDto.getId(), userDto).andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("User"));
+    }
 
-        UserDto userDto2 = new UserDto();
-        userDto2.setName("User2");
-        userDto2.setEmail("mail2@mail.ru");
+    @Test
+    public void updateUserNameBlankNameTest() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        userDto.setName("          ");
+        patchUser(userDto.getId(), userDto).andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("User"));
+    }
 
-        json = mapper.writeValueAsString(userDto2);
-        mockMvc.perform(
-                        patch("/users/1")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
+    @Test
+    public void updateUserNameNullNameTest() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        userDto.setName(null);
+        patchUser(userDto.getId(), userDto).andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("User"));
+    }
 
-        MvcResult result = mockMvc.perform(
-                        get("/users/1")
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+    @Test
+    public void updateUserEmailTest() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        userDto.setEmail("yandex@praktikum.ru");
+        patchUser(userDto.getId(), userDto).andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("yandex@praktikum.ru"));
+    }
 
-        userDto2.setId(1L);
-        String jsonExpected = mapper.writeValueAsString(userDto2);
-        assertEquals(jsonExpected, result.getResponse().getContentAsString());
+    @Test
+    public void updateUserEmailEmptyNameTest() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        userDto.setEmail("");
+        patchUser(userDto.getId(), userDto).andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("mail@mail.ru"));
+    }
+
+    @Test
+    public void updateUserEmailNullNameTest() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        userDto.setEmail(null);
+        patchUser(userDto.getId(), userDto).andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("mail@mail.ru"));
     }
 
     @Test
     public void updateAbsentUserTest() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setName("User");
-        userDto.setEmail("mail@mail.ru");
-        String json = mapper.writeValueAsString(userDto);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        UserDto userDto2 = new UserDto();
-        userDto.setName("User2");
-        userDto.setEmail("mail2@mail.ru");
-        json = mapper.writeValueAsString(userDto2);
-        mockMvc.perform(
-                        patch("/users/2")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isNotFound());
+        postUser(userDto).andExpect(status().isOk());
+        patchUser(99L, userDto).andExpect(status().isNotFound());
     }
 
     @Test
     public void deleteUserTest() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setName("User");
-        userDto.setEmail("mail@mail.ru");
-        String json = mapper.writeValueAsString(userDto);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        delete("/users/1")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-        mockMvc.perform(
-                        patch("/users/1")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isNotFound());
+        postUser(userDto).andExpect(status().isOk()).andExpect(status().isOk());
+        getUserById(userDto.getId()).andExpect(status().isOk());
+        deleteUser(userDto.getId()).andExpect(status().isOk());
+        getUserById(userDto.getId()).andExpect(status().isNotFound());
     }
 
     @Test
     public void deleteNotFoundUserTest() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setName("User");
-        userDto.setEmail("mail@mail.ru");
-        String json = mapper.writeValueAsString(userDto);
-        mockMvc.perform(
-                        post("/users")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
+        postUser(userDto).andExpect(status().isOk()).andExpect(status().isOk());
+        getUserById(userDto.getId()).andExpect(status().isOk());
+        deleteUser(99L).andExpect(status().isNotFound());
+    }
 
-        mockMvc.perform(
-                        delete("/users/2")
-                                .content(json)
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isNotFound());
+    private ResultActions getUserById(Long userId) throws Exception {
+        return mockMvc.perform(
+                get("/users/" + userId)
+        );
+    }
+
+    private ResultActions getUsers() throws Exception {
+        return mockMvc.perform(
+                get("/users")
+        );
+    }
+
+    private ResultActions postUser(UserDto userDto) throws Exception {
+        return mockMvc.perform(
+                post("/users")
+                        .content(mapper.writeValueAsString(userDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+    }
+
+    private ResultActions patchUser(Long userId, UserDto userDto) throws Exception {
+        return mockMvc.perform(
+                patch("/users/" + userId)
+                        .content(mapper.writeValueAsString(userDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+    }
+
+    private ResultActions deleteUser(Long userId) throws Exception {
+        return mockMvc.perform(
+                delete("/users/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
     }
 }

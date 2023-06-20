@@ -1,0 +1,195 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > ItemRequestServiceImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">ru.practicum.shareit.request.service</a>
+</div>
+
+<h1>Coverage Summary for Class: ItemRequestServiceImpl (ru.practicum.shareit.request.service)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ItemRequestServiceImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/30)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package ru.practicum.shareit.request.service;
+&nbsp;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.data.domain.PageRequest;
+&nbsp;import org.springframework.data.domain.Sort;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;import org.springframework.transaction.annotation.Transactional;
+&nbsp;import ru.practicum.shareit.exception.NotFoundException;
+&nbsp;import ru.practicum.shareit.item.model.Item;
+&nbsp;import ru.practicum.shareit.item.repository.ItemRepository;
+&nbsp;import ru.practicum.shareit.item.utility.ItemMapper;
+&nbsp;import ru.practicum.shareit.request.dto.RequestDto;
+&nbsp;import ru.practicum.shareit.request.model.Request;
+&nbsp;import ru.practicum.shareit.request.repository.ItemRequestRepository;
+&nbsp;import ru.practicum.shareit.request.utility.RequestMapper;
+&nbsp;import ru.practicum.shareit.user.model.User;
+&nbsp;import ru.practicum.shareit.user.service.UserService;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;import static java.util.stream.Collectors.groupingBy;
+&nbsp;import static java.util.stream.Collectors.toList;
+&nbsp;import static org.springframework.data.domain.Sort.Direction.ASC;
+&nbsp;
+&nbsp;@Service
+&nbsp;@RequiredArgsConstructor
+&nbsp;public class ItemRequestServiceImpl implements ItemRequestService {
+&nbsp;    private final ItemRequestRepository itemRequestRepository;
+&nbsp;    private final UserService userService;
+&nbsp;    private final ItemRepository itemRepository;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional(readOnly = true)
+&nbsp;    public RequestDto getRequestById(Long id, Long userId) {
+<b class="nc">&nbsp;        Request request = getRequest(id);</b>
+<b class="nc">&nbsp;        userService.getUser(userId);</b>
+<b class="nc">&nbsp;        RequestDto requestDto = RequestMapper.mapToRequestDto(request);</b>
+<b class="nc">&nbsp;        requestDto.setItems(itemRepository.findAllByRequestOrderByRequestCreatedDesc(request).stream()</b>
+<b class="nc">&nbsp;                .map(ItemMapper::mapToItemDto)</b>
+<b class="nc">&nbsp;                .collect(Collectors.toList()));</b>
+<b class="nc">&nbsp;        return requestDto;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional(readOnly = true)
+&nbsp;    public List&lt;RequestDto&gt; getUserRequests(Long userId) {
+<b class="nc">&nbsp;        User user = userService.getUser(userId);</b>
+<b class="nc">&nbsp;        List&lt;Request&gt; requests = itemRequestRepository.findAllByRequestorOrderByCreatedDesc(user);</b>
+<b class="nc">&nbsp;        return setItemsInRequest(requests);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional(readOnly = true)
+&nbsp;    public List&lt;RequestDto&gt; getRequests(Long userId, Integer from, Integer size) {
+<b class="nc">&nbsp;        User user = userService.getUser(userId);</b>
+<b class="nc">&nbsp;        PageRequest page = PageRequest.of(from &gt; 0 ? from / size : 0, size);</b>
+<b class="nc">&nbsp;        List&lt;Request&gt; requests = itemRequestRepository.findAllByRequestorNotOrderByCreatedDesc(user, page).getContent();</b>
+<b class="nc">&nbsp;        return setItemsInRequest(requests);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional
+&nbsp;    public RequestDto addRequest(RequestDto requestDto, Long userId) {
+<b class="nc">&nbsp;        User user = userService.getUser(userId);</b>
+<b class="nc">&nbsp;        Request request = RequestMapper.mapToRequest(requestDto, user);</b>
+<b class="nc">&nbsp;        return RequestMapper.mapToRequestDto(itemRequestRepository.save(request));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private List&lt;RequestDto&gt; setItemsInRequest(List&lt;Request&gt; requests) {
+<b class="nc">&nbsp;        Map&lt;Request, List&lt;Item&gt;&gt; items = itemRepository.findByRequestIn(requests, Sort.by(ASC, &quot;id&quot;))</b>
+<b class="nc">&nbsp;                .stream()</b>
+<b class="nc">&nbsp;                .collect(groupingBy(Item::getRequest, toList()));</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;RequestDto&gt; requestsDto = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;        for (Request request : requests) {</b>
+<b class="nc">&nbsp;            RequestDto requestDto = RequestMapper.mapToRequestDto(request);</b>
+<b class="nc">&nbsp;            if (items.get(request) != null) {</b>
+<b class="nc">&nbsp;                requestDto.setItems(items.get(request).stream().map(ItemMapper::mapToItemDto).collect(toList()));</b>
+&nbsp;            }
+<b class="nc">&nbsp;            requestsDto.add(requestDto);</b>
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return requestsDto;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private Request getRequest(Long id) {
+<b class="nc">&nbsp;        return itemRequestRepository.findById(id)</b>
+<b class="nc">&nbsp;                .orElseThrow(() -&gt; new NotFoundException(String.format(&quot;Request with id=%d not found&quot;, id)));</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-06-20 00:55</div>
+</div>
+</body>
+</html>

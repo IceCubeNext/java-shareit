@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -19,8 +20,7 @@ import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,6 +35,7 @@ public class BookingIntegrationTest {
     private UserDto userDto;
     private UserDto userDto2;
     private ItemDto itemDto;
+    private BookingCreateDto bookingCreateDto;
 
     @BeforeEach
     void setUp() {
@@ -54,87 +55,169 @@ public class BookingIntegrationTest {
         itemDto.setDescription("Дрель 'DeWalt' в отличном состоянии");
         itemDto.setAvailable(true);
         itemDto.setOwner(1L);
+
+        bookingCreateDto = new BookingCreateDto();
+        bookingCreateDto.setStart(LocalDateTime.now().plusHours(1));
+        bookingCreateDto.setEnd(LocalDateTime.now().plusHours(2));
+        bookingCreateDto.setItemId(1L);
+
+        mapper.registerModule(new JavaTimeModule());
+    }
+
+    @Test
+    public void getBookingById() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        postUser(userDto2).andExpect(status().isOk());
+        postItem(userDto.getId(), itemDto).andExpect(status().isOk());
+        postBooking(userDto2.getId(), bookingCreateDto).andExpect(status().isOk());
+        getBookingByUserId(userDto.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1L), Long.class))
+                .andExpect(jsonPath("$.status", is("WAITING")))
+                .andExpect(jsonPath("$.booker.id", is(userDto2.getId()), Long.class))
+                .andExpect(jsonPath("$.item.id", is(itemDto.getId()), Long.class));
+    }
+
+    @Test
+    public void addBookingWrongStartEnd() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        postUser(userDto2).andExpect(status().isOk());
+        postItem(userDto.getId(), itemDto).andExpect(status().isOk());
+        bookingCreateDto.setStart(LocalDateTime.now().plusHours(1));
+        bookingCreateDto.setEnd(LocalDateTime.now().minusHours(1));
+
+        postBooking(userDto2.getId(), bookingCreateDto)
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     public void getEmptyUserBookings() throws Exception {
-        mockMvc.perform(
-                        post("/users")
-                                .content(mapper.writeValueAsString(userDto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        get("/bookings")
-                                .header("X-Sharer-User-Id", "1")
-                )
+        postUser(userDto).andExpect(status().isOk());
+        getUserBookings(userDto.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
     public void getEmptyOwnerBookings() throws Exception {
-        mockMvc.perform(
-                        post("/users")
-                                .content(mapper.writeValueAsString(userDto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        get("/bookings/owner")
-                                .header("X-Sharer-User-Id", "1")
-                )
+        postUser(userDto).andExpect(status().isOk());
+        getOwnerBookings(userDto.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
-    public void getUserBookingsUser2() throws Exception {
-        BookingCreateDto bookingCreateDto = new BookingCreateDto();
-        bookingCreateDto.setStart(LocalDateTime.now().plusHours(1));
-        bookingCreateDto.setEnd(LocalDateTime.now().plusHours(2));
-        bookingCreateDto.setItemId(1L);
+    public void getUserBookings() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        postUser(userDto2).andExpect(status().isOk());
+        postItem(userDto.getId(), itemDto).andExpect(status().isOk());
+        postBooking(userDto2.getId(), bookingCreateDto).andExpect(status().isOk());
 
-        mockMvc.perform(
-                        post("/users")
-                                .content(mapper.writeValueAsString(userDto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        post("/users")
-                                .content(mapper.writeValueAsString(userDto2))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        post("/items")
-                                .header("X-Sharer-User-Id", "1")
-                                .content(mapper.writeValueAsString(itemDto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        mapper.registerModule(new JavaTimeModule());
-        mockMvc.perform(
-                        post("/bookings")
-                                .header("X-Sharer-User-Id", "2")
-                                .content(mapper.writeValueAsString(bookingCreateDto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk());
-
-        mockMvc.perform(
-                        get("/bookings")
-                                .header("X-Sharer-User-Id", "2")
-                )
+        getUserBookings(userDto2.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$.[0].item.id", is(itemDto.getId()), Long.class))
                 .andExpect(jsonPath("$.[0].booker.id", is(userDto2.getId()), Long.class));
+    }
+
+    @Test
+    public void getOwnerBookings() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        postUser(userDto2).andExpect(status().isOk());
+        postItem(userDto.getId(), itemDto).andExpect(status().isOk());
+        postBooking(userDto2.getId(), bookingCreateDto).andExpect(status().isOk());
+
+        getOwnerBookings(userDto.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$.[0].item.id", is(itemDto.getId()), Long.class))
+                .andExpect(jsonPath("$.[0].booker.id", is(userDto2.getId()), Long.class));
+    }
+
+    @Test
+    public void approveBookingAccept() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        postUser(userDto2).andExpect(status().isOk());
+        postItem(userDto.getId(), itemDto).andExpect(status().isOk());
+        postBooking(userDto2.getId(), bookingCreateDto).andExpect(status().isOk());
+
+        mockMvc.perform(
+                patch("/bookings/1?approved=true")
+                        .header("X-Sharer-User-Id", "1")
+        );
+
+        getOwnerBookings(userDto.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$.[0].item.id", is(itemDto.getId()), Long.class))
+                .andExpect(jsonPath("$.[0].booker.id", is(userDto2.getId()), Long.class))
+                .andExpect(jsonPath("$.[0].status", is("APPROVED")));
+    }
+
+    @Test
+    public void approveBookingRejected() throws Exception {
+        postUser(userDto).andExpect(status().isOk());
+        postUser(userDto2).andExpect(status().isOk());
+        postItem(userDto.getId(), itemDto).andExpect(status().isOk());
+        postBooking(userDto2.getId(), bookingCreateDto).andExpect(status().isOk());
+
+        mockMvc.perform(
+                patch("/bookings/1?approved=false")
+                        .header("X-Sharer-User-Id", "1")
+        );
+
+        getOwnerBookings(userDto.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$.[0].item.id", is(itemDto.getId()), Long.class))
+                .andExpect(jsonPath("$.[0].booker.id", is(userDto2.getId()), Long.class))
+                .andExpect(jsonPath("$.[0].status", is("REJECTED")));
+    }
+
+    private ResultActions getBookingByUserId(Long userId) throws Exception {
+        return  mockMvc.perform(
+                get("/bookings/" + userId.toString())
+                        .header("X-Sharer-User-Id", userId)
+        );
+    }
+
+    private ResultActions getOwnerBookings(Long userId) throws Exception {
+        return  mockMvc.perform(
+                get("/bookings/owner")
+                        .header("X-Sharer-User-Id", userId)
+        );
+    }
+
+    private ResultActions getUserBookings(Long userId) throws Exception {
+        return  mockMvc.perform(
+                get("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+        );
+    }
+
+    private ResultActions postBooking(Long userId, BookingCreateDto bookingCreateDto) throws Exception {
+        return  mockMvc.perform(
+                post("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+                        .content(mapper.writeValueAsString(bookingCreateDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+    }
+
+    private ResultActions postUser(UserDto userDto) throws Exception {
+        return mockMvc.perform(
+               post("/users")
+                       .content(mapper.writeValueAsString(userDto))
+                       .contentType(MediaType.APPLICATION_JSON)
+        );
+    }
+
+    private ResultActions postItem(Long userId, ItemDto itemDto) throws Exception {
+        return mockMvc.perform(
+                post("/items")
+                        .header("X-Sharer-User-Id", userId)
+                        .content(mapper.writeValueAsString(itemDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
     }
 }

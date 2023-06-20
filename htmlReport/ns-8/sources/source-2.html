@@ -1,0 +1,91 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > ItemService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">ru.practicum.shareit.item.service</a>
+</div>
+
+<h1>Coverage Summary for Class: ItemService (ru.practicum.shareit.item.service)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">ItemService</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package ru.practicum.shareit.item.service;
+&nbsp;
+&nbsp;import ru.practicum.shareit.item.dto.CommentCreateDto;
+&nbsp;import ru.practicum.shareit.item.dto.CommentDto;
+&nbsp;import ru.practicum.shareit.item.dto.ItemInfoDto;
+&nbsp;import ru.practicum.shareit.item.dto.ItemDto;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;public interface ItemService {
+&nbsp;    ItemInfoDto getItemById(Long id, Long userId);
+&nbsp;
+&nbsp;    List&lt;ItemInfoDto&gt; getItemsByUserId(Long userId, Integer from, Integer size);
+&nbsp;
+&nbsp;    List&lt;ItemDto&gt; searchItems(String text, Integer from, Integer size);
+&nbsp;
+&nbsp;    ItemDto addItem(Long userId, ItemDto itemDto);
+&nbsp;
+&nbsp;    CommentDto addComment(Long userId, Long itemId, CommentCreateDto commentDto);
+&nbsp;
+&nbsp;    ItemDto updateItem(Long userId, Long id, ItemDto itemDto);
+&nbsp;
+&nbsp;    void deleteItem(Long id);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-06-20 00:55</div>
+</div>
+</body>
+</html>
