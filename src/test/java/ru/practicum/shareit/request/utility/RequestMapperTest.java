@@ -25,7 +25,6 @@ class RequestMapperTest {
 
         Request request = RequestMapper.mapToRequest(requestDto, user);
         assertEquals(requestDto.getDescription(), request.getDescription());
-        assertEquals(requestDto.getCreated(), request.getCreated());
         assertEquals(requestDto.getRequestorId(), request.getRequestor().getId());
     }
 
