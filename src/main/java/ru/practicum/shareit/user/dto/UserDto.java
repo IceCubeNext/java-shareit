@@ -10,6 +10,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Generated
 public class UserDto {
     private Long id;
     @NotBlank(groups = {Marker.OnCreate.class}, message = "Name should not be empty")

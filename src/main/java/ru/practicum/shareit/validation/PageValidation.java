@@ -1,7 +1,9 @@
 package ru.practicum.shareit.validation;
 
+import lombok.Generated;
 import lombok.experimental.UtilityClass;
 
+@Generated
 @UtilityClass
 public class PageValidation {
     public void validatePageParameters(Integer from, Integer size) {

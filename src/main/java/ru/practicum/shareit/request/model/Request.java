@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "requests")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Generated
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

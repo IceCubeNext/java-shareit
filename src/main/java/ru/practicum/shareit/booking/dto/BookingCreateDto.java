@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Generated
 @StartBeforeEndDateValid(groups = {Marker.OnCreate.class})
 public class BookingCreateDto {
     @FutureOrPresent(groups = {Marker.OnCreate.class}, message = "Start of booking should not be in the past")
