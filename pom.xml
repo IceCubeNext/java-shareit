@@ -162,6 +162,8 @@
 						<output>file</output>
 						<excludes>
 							<exclude>**/model/*</exclude>
+							<exclude>**/*Config.*</exclude>
+							<exclude>**/*Dev.*</exclude>
 						</excludes>
 					</configuration>
 					<executions>
