@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -38,13 +39,13 @@ class BookingControllerTest {
     private BookingService bookingService;
     @InjectMocks
     private BookingController controller;
-    private MockMvc mvc;
+    private MockMvc mockMvc;
     private final ObjectMapper mapper = new ObjectMapper();
     private BookingDto bookingDto;
 
     @BeforeEach
     void setUp() {
-        mvc = MockMvcBuilders
+        mockMvc = MockMvcBuilders
                 .standaloneSetup(controller)
                 .setControllerAdvice(ExceptionApiHandler.class)
                 .build();
@@ -58,14 +59,11 @@ class BookingControllerTest {
     }
 
     @Test
-    public void getBookingById() throws Exception {
+    public void getBookingByIdTest() throws Exception {
         when(bookingService.getBookingById(anyLong(), anyLong()))
                 .thenReturn(bookingDto);
 
-        mvc.perform(
-                        get("/bookings/1")
-                                .header("X-Sharer-User-Id", "1")
-                )
+        getBookingById(bookingDto.getId(), 1L)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(bookingDto.getId()), Long.class))
                 .andExpect(jsonPath("$.start", is(bookingDto.getStart()
@@ -79,8 +77,8 @@ class BookingControllerTest {
     }
 
     @Test
-    public void getBookingByIdWithoutUserId() throws Exception {
-        mvc.perform(
+    public void getBookingByIdWithoutUserIdTest() throws Exception {
+        mockMvc.perform(
                         get("/bookings/1")
                 )
                 .andExpect(status().isBadRequest());
@@ -91,7 +89,7 @@ class BookingControllerTest {
         when(bookingService.getUserBookings(anyLong(), any(), anyInt(), anyInt()))
                 .thenReturn(List.of(bookingDto));
 
-        mvc.perform(
+        mockMvc.perform(
                         get("/bookings")
                                 .header("X-Sharer-User-Id", "1")
                 )
@@ -113,7 +111,7 @@ class BookingControllerTest {
         when(bookingService.getUserBookings(anyLong(), any(), anyInt(), anyInt()))
                 .thenReturn(List.of(bookingDto));
 
-        mvc.perform(
+        mockMvc.perform(
                         get("/bookings?from=0&size=10")
                                 .header("X-Sharer-User-Id", "1")
                 )
@@ -132,7 +130,7 @@ class BookingControllerTest {
 
     @Test
     public void getUserBookingsWrongPageFromParameters() throws Exception {
-        mvc.perform(
+        mockMvc.perform(
                         get("/bookings?from=-1&size=10")
                                 .header("X-Sharer-User-Id", "1")
                 )
@@ -144,7 +142,7 @@ class BookingControllerTest {
 
     @Test
     public void getUserBookingsWrongPageSizeParameters() throws Exception {
-        mvc.perform(
+        mockMvc.perform(
                         get("/bookings?from=0&size=-1")
                                 .header("X-Sharer-User-Id", "1")
                 )
@@ -156,7 +154,7 @@ class BookingControllerTest {
 
     @Test
     public void getUserBookingsWithoutUserId() throws Exception {
-        mvc.perform(
+        mockMvc.perform(
                         get("/bookings?from=0&size=10")
                 )
                 .andExpect(status().isBadRequest());
@@ -167,7 +165,7 @@ class BookingControllerTest {
         when(bookingService.getBookingsByOwner(anyLong(), any(), anyInt(), anyInt()))
                 .thenReturn(List.of(bookingDto));
 
-        mvc.perform(
+        mockMvc.perform(
                         get("/bookings/owner")
                                 .header("X-Sharer-User-Id", "1")
                 )
@@ -189,7 +187,7 @@ class BookingControllerTest {
         when(bookingService.getBookingsByOwner(anyLong(), any(), anyInt(), anyInt()))
                 .thenReturn(List.of(bookingDto));
 
-        mvc.perform(
+        mockMvc.perform(
                         get("/bookings/owner?from=0&size=10")
                                 .header("X-Sharer-User-Id", "1")
                 )
@@ -208,7 +206,7 @@ class BookingControllerTest {
 
     @Test
     public void getBookingsByOwnerWrongPageFromParameters() throws Exception {
-        mvc.perform(
+        mockMvc.perform(
                         get("/bookings/owner?from=-1&size=10")
                                 .header("X-Sharer-User-Id", "1")
                 )
@@ -220,7 +218,7 @@ class BookingControllerTest {
 
     @Test
     public void getBookingsByOwnerWrongPageSizeParameters() throws Exception {
-        mvc.perform(
+        mockMvc.perform(
                         get("/bookings/owner?from=0&size=-1")
                                 .header("X-Sharer-User-Id", "1")
                 )
@@ -232,7 +230,7 @@ class BookingControllerTest {
 
     @Test
     public void getBookingsByOwnerWithoutUserId() throws Exception {
-        mvc.perform(
+        mockMvc.perform(
                         get("/bookings/owner?from=0&size=10")
                 )
                 .andExpect(status().isBadRequest());
@@ -248,14 +246,7 @@ class BookingControllerTest {
         when(bookingService.addBooking(any(), anyLong()))
                 .thenReturn(bookingDto);
 
-        mvc.perform(
-                        post("/bookings")
-                                .header("X-Sharer-User-Id", "1")
-                                .content(mapper.writeValueAsString(bookingCreateDto))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+        postBooking(1L, bookingCreateDto)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(bookingDto.getId()), Long.class))
                 .andExpect(jsonPath("$.start", is(bookingDto.getStart()
@@ -276,14 +267,7 @@ class BookingControllerTest {
         bookingCreateDto.setItemId(1L);
         mapper.registerModule(new JavaTimeModule());
 
-        mvc.perform(
-                        post("/bookings")
-                                .header("X-Sharer-User-Id", "1")
-                                .content(mapper.writeValueAsString(bookingCreateDto))
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+        postBooking(1L, bookingCreateDto)
                 .andExpect(status().isBadRequest());
     }
 
@@ -295,7 +279,7 @@ class BookingControllerTest {
         bookingCreateDto.setItemId(1L);
         mapper.registerModule(new JavaTimeModule());
 
-        mvc.perform(
+        mockMvc.perform(
                         post("/bookings")
                                 .content(mapper.writeValueAsString(bookingCreateDto))
                                 .characterEncoding(StandardCharsets.UTF_8)
@@ -310,7 +294,7 @@ class BookingControllerTest {
         when(bookingService.updateBooking(anyLong(), anyLong(), any()))
                 .thenReturn(bookingDto);
 
-        mvc.perform(
+        mockMvc.perform(
                         patch("/bookings/1?approved=true")
                                 .header("X-Sharer-User-Id", "1")
                 )
@@ -328,9 +312,25 @@ class BookingControllerTest {
 
     @Test
     public void approveBookingWithoutUserId() throws Exception {
-        mvc.perform(
+        mockMvc.perform(
                         patch("/bookings/1?approved=true")
                 )
                 .andExpect(status().isBadRequest());
+    }
+
+    private ResultActions getBookingById(Long id, Long userId) throws Exception {
+        return mockMvc.perform(
+                get("/bookings/" + id)
+                        .header("X-Sharer-User-Id", userId)
+        );
+    }
+
+    private ResultActions postBooking(Long userId, BookingCreateDto bookingCreateDto) throws Exception {
+        return mockMvc.perform(
+                post("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+                        .content(mapper.writeValueAsString(bookingCreateDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
     }
 }
