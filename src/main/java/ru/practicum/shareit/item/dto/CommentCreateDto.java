@@ -10,6 +10,7 @@ import javax.validation.constraints.Size;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Generated
 public class CommentCreateDto {
     @NotBlank(groups = {Marker.OnCreate.class}, message = "Text should not be empty")
     @Size(max = 2000, groups = {Marker.OnCreate.class}, message = "Text should be less than 2000 symbols")

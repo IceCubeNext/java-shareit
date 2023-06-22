@@ -11,6 +11,7 @@ import javax.validation.constraints.Size;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Generated
 public class ItemDto {
     private Long id;
     @NotBlank(groups = {Marker.OnCreate.class}, message = "Name should not be empty")
@@ -22,4 +23,5 @@ public class ItemDto {
     @NotNull(groups = {Marker.OnCreate.class}, message = "Available should not be null")
     private Boolean available;
     private Long owner;
+    private Long requestId;
 }

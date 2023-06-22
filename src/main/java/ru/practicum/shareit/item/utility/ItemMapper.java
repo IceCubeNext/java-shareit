@@ -10,8 +10,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class ItemMapper {
@@ -30,7 +28,8 @@ public class ItemMapper {
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
-                item.getOwner().getId()
+                item.getOwner().getId(),
+                item.getRequest() == null ? null : item.getRequest().getId()
         );
     }
 
@@ -63,9 +62,5 @@ public class ItemMapper {
                 comment.getAuthor().getName(),
                 comment.getCreated()
         );
-    }
-
-    public List<ItemDto> mapToItemDto(List<Item> items) {
-        return items.stream().map(ItemMapper::mapToItemDto).collect(Collectors.toList());
     }
 }

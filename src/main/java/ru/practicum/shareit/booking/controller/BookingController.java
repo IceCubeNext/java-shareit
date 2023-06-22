@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.validation.Marker;
+import ru.practicum.shareit.validation.PageValidation;
 
 import java.util.List;
 
@@ -24,15 +25,21 @@ public class BookingController {
     }
 
     @GetMapping
-    List<BookingDto> getUserBookings(@RequestParam(value = "state", defaultValue = "ALL") BookingState state,
+    List<BookingDto> getUserBookings(@RequestParam(defaultValue = "0") Integer from,
+                                     @RequestParam(defaultValue = "10") Integer size,
+                                     @RequestParam(value = "state", defaultValue = "ALL") BookingState state,
                                      @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return bookingService.getUserBookings(userId, state);
+        PageValidation.validatePageParameters(from, size);
+        return bookingService.getUserBookings(userId, state, from, size);
     }
 
     @GetMapping("/owner")
-    List<BookingDto> getBookingsByOwner(@RequestParam(value = "state", defaultValue = "ALL") BookingState state,
+    List<BookingDto> getBookingsByOwner(@RequestParam(defaultValue = "0") Integer from,
+                                        @RequestParam(defaultValue = "10") Integer size,
+                                        @RequestParam(value = "state", defaultValue = "ALL") BookingState state,
                                         @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return bookingService.getBookingsByOwner(userId, state);
+        PageValidation.validatePageParameters(from, size);
+        return bookingService.getBookingsByOwner(userId, state, from, size);
     }
 
     @PostMapping

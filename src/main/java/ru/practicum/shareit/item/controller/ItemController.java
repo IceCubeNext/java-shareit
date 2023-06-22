@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.dto.ItemInfoDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.validation.Marker;
+import ru.practicum.shareit.validation.PageValidation;
 
 import java.util.List;
 
@@ -25,13 +26,19 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemInfoDto> getItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemService.getItemsByUserId(userId);
+    public List<ItemInfoDto> getItems(@RequestParam(defaultValue = "0") Integer from,
+                                      @RequestParam(defaultValue = "10") Integer size,
+                                      @RequestHeader("X-Sharer-User-Id") Long userId) {
+        PageValidation.validatePageParameters(from, size);
+        return itemService.getItemsByUserId(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItems(@RequestParam(value = "text") String text) {
-        return itemService.searchItems(text);
+    public List<ItemDto> searchItems(@RequestParam(defaultValue = "0") Integer from,
+                                     @RequestParam(defaultValue = "10") Integer size,
+                                     @RequestParam(value = "text") String text) {
+        PageValidation.validatePageParameters(from, size);
+        return itemService.searchItems(text, from, size);
     }
 
     @PostMapping

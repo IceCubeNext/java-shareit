@@ -9,6 +9,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Generated
 public class ItemInfoDto {
     private Long id;
     private String name;
