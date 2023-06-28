@@ -17,11 +17,8 @@ import ru.practicum.shareit.request.service.ItemRequestService;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -124,30 +121,6 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.[1].description", is(requestDto2.getDescription())))
                 .andExpect(jsonPath("$.[1].requestorId", is(requestDto2.getRequestorId()), Long.class))
                 .andExpect(jsonPath("$.[1].items", is(requestDto2.getItems())));
-    }
-
-    @Test
-    public void getRequestsWrongFromPageParameter() throws Exception {
-        mvc.perform(
-                        get("/requests/all?from=-1&size=10")
-                                .header("X-Sharer-User-Id", "1")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
-                .andExpect(result -> assertEquals("Page parameters incorrect",
-                        Objects.requireNonNull(result.getResolvedException()).getMessage()));
-    }
-
-    @Test
-    public void getRequestsWrongSizePageParameter() throws Exception {
-        mvc.perform(
-                        get("/requests/all?from=0&size=-1")
-                                .header("X-Sharer-User-Id", "1")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
-                .andExpect(result -> assertEquals("Page parameters incorrect",
-                        Objects.requireNonNull(result.getResolvedException()).getMessage()));
     }
 
     @Test

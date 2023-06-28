@@ -50,55 +50,6 @@ class UserIntegrationTest {
     }
 
     @Test
-    public void addUserWithIncorrectEmail() throws Exception {
-        userDto.setEmail("mail.ru");
-        postUser(userDto)
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void addUserWithEmptyMail() throws Exception {
-        userDto.setEmail("");
-        postUser(userDto)
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void addUserWithBankMail() throws Exception {
-        userDto.setEmail("       ");
-        postUser(userDto)
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void addUserWithNullMail() throws Exception {
-        userDto.setEmail(null);
-        postUser(userDto)
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void addUserWithEmptyName() throws Exception {
-        userDto.setName("");
-        postUser(userDto)
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void addUserWithBankName() throws Exception {
-        userDto.setName("       ");
-        postUser(userDto)
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void addUserWithNullName() throws Exception {
-        userDto.setName(null);
-        postUser(userDto)
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     public void addUserWithExistsMail() throws Exception {
         postUser(userDto).andExpect(status().isOk());
         userDto2.setEmail(userDto.getEmail());

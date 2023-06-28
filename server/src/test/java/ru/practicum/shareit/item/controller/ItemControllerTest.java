@@ -19,12 +19,9 @@ import ru.practicum.shareit.item.service.ItemService;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -130,30 +127,6 @@ class ItemControllerTest {
     }
 
     @Test
-    public void getItemsWrongFromPageParameters() throws Exception {
-        mvc.perform(
-                        get("/items?from=-1&size=10")
-                                .header("X-Sharer-User-Id", "1")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
-                .andExpect(result -> assertEquals("Page parameters incorrect",
-                        Objects.requireNonNull(result.getResolvedException()).getMessage()));
-    }
-
-    @Test
-    public void getItemsWrongSizePageParameters() throws Exception {
-        mvc.perform(
-                        get("/items?from=0&size=-1")
-                                .header("X-Sharer-User-Id", "1")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
-                .andExpect(result -> assertEquals("Page parameters incorrect",
-                        Objects.requireNonNull(result.getResolvedException()).getMessage()));
-    }
-
-    @Test
     public void getItemsWithoutUserId() throws Exception {
         mvc.perform(
                         get("/items")
@@ -193,28 +166,6 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.[0].description", is(itemDto.getDescription())))
                 .andExpect(jsonPath("$.[0].available", is(itemDto.getAvailable())))
                 .andExpect(jsonPath("$.[0].owner", is(itemDto.getOwner()), Long.class));
-    }
-
-    @Test
-    public void searchItemsWrongFromPageParameters() throws Exception {
-        mvc.perform(
-                        get("/items/search?text=дрель&from=-1&size=10")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
-                .andExpect(result -> assertEquals("Page parameters incorrect",
-                        Objects.requireNonNull(result.getResolvedException()).getMessage()));
-    }
-
-    @Test
-    public void searchItemsWrongSizePageParameters() throws Exception {
-        mvc.perform(
-                        get("/items/search?text=дрель&from=1&size=-1")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
-                .andExpect(result -> assertEquals("Page parameters incorrect",
-                        Objects.requireNonNull(result.getResolvedException()).getMessage()));
     }
 
     @Test

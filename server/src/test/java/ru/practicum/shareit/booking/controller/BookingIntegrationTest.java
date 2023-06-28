@@ -79,18 +79,6 @@ public class BookingIntegrationTest {
     }
 
     @Test
-    public void addBookingWrongStartEnd() throws Exception {
-        postUser(userDto).andExpect(status().isOk());
-        postUser(userDto2).andExpect(status().isOk());
-        postItem(userDto.getId(), itemDto).andExpect(status().isOk());
-        bookingCreateDto.setStart(LocalDateTime.now().plusHours(1));
-        bookingCreateDto.setEnd(LocalDateTime.now().minusHours(1));
-
-        postBooking(userDto2.getId(), bookingCreateDto)
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     public void getEmptyUserBookings() throws Exception {
         postUser(userDto).andExpect(status().isOk());
         getUserBookings(userDto.getId())
@@ -175,28 +163,28 @@ public class BookingIntegrationTest {
     }
 
     private ResultActions getBookingByUserId(Long userId) throws Exception {
-        return  mockMvc.perform(
+        return mockMvc.perform(
                 get("/bookings/" + userId.toString())
                         .header("X-Sharer-User-Id", userId)
         );
     }
 
     private ResultActions getOwnerBookings(Long userId) throws Exception {
-        return  mockMvc.perform(
+        return mockMvc.perform(
                 get("/bookings/owner")
                         .header("X-Sharer-User-Id", userId)
         );
     }
 
     private ResultActions getUserBookings(Long userId) throws Exception {
-        return  mockMvc.perform(
+        return mockMvc.perform(
                 get("/bookings")
                         .header("X-Sharer-User-Id", userId)
         );
     }
 
     private ResultActions postBooking(Long userId, BookingCreateDto bookingCreateDto) throws Exception {
-        return  mockMvc.perform(
+        return mockMvc.perform(
                 post("/bookings")
                         .header("X-Sharer-User-Id", userId)
                         .content(mapper.writeValueAsString(bookingCreateDto))
@@ -206,9 +194,9 @@ public class BookingIntegrationTest {
 
     private ResultActions postUser(UserDto userDto) throws Exception {
         return mockMvc.perform(
-               post("/users")
-                       .content(mapper.writeValueAsString(userDto))
-                       .contentType(MediaType.APPLICATION_JSON)
+                post("/users")
+                        .content(mapper.writeValueAsString(userDto))
+                        .contentType(MediaType.APPLICATION_JSON)
         );
     }
 

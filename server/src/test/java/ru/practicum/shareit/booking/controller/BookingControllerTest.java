@@ -21,12 +21,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -129,30 +126,6 @@ class BookingControllerTest {
     }
 
     @Test
-    public void getUserBookingsWrongPageFromParameters() throws Exception {
-        mockMvc.perform(
-                        get("/bookings?from=-1&size=10")
-                                .header("X-Sharer-User-Id", "1")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
-                .andExpect(result -> assertEquals("Page parameters incorrect",
-                        Objects.requireNonNull(result.getResolvedException()).getMessage()));
-    }
-
-    @Test
-    public void getUserBookingsWrongPageSizeParameters() throws Exception {
-        mockMvc.perform(
-                        get("/bookings?from=0&size=-1")
-                                .header("X-Sharer-User-Id", "1")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
-                .andExpect(result -> assertEquals("Page parameters incorrect",
-                        Objects.requireNonNull(result.getResolvedException()).getMessage()));
-    }
-
-    @Test
     public void getUserBookingsWithoutUserId() throws Exception {
         mockMvc.perform(
                         get("/bookings?from=0&size=10")
@@ -205,30 +178,6 @@ class BookingControllerTest {
     }
 
     @Test
-    public void getBookingsByOwnerWrongPageFromParameters() throws Exception {
-        mockMvc.perform(
-                        get("/bookings/owner?from=-1&size=10")
-                                .header("X-Sharer-User-Id", "1")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
-                .andExpect(result -> assertEquals("Page parameters incorrect",
-                        Objects.requireNonNull(result.getResolvedException()).getMessage()));
-    }
-
-    @Test
-    public void getBookingsByOwnerWrongPageSizeParameters() throws Exception {
-        mockMvc.perform(
-                        get("/bookings/owner?from=0&size=-1")
-                                .header("X-Sharer-User-Id", "1")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
-                .andExpect(result -> assertEquals("Page parameters incorrect",
-                        Objects.requireNonNull(result.getResolvedException()).getMessage()));
-    }
-
-    @Test
     public void getBookingsByOwnerWithoutUserId() throws Exception {
         mockMvc.perform(
                         get("/bookings/owner?from=0&size=10")
@@ -257,18 +206,6 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.item.name", is(bookingDto.getItem().getName())))
                 .andExpect(jsonPath("$.booker.id", is(bookingDto.getBooker().getId()), Long.class))
                 .andExpect(jsonPath("$.booker.name", is(bookingDto.getBooker().getName())));
-    }
-
-    @Test
-    public void addBookingWrongStartEnd() throws Exception {
-        BookingCreateDto bookingCreateDto = new BookingCreateDto();
-        bookingCreateDto.setStart(LocalDateTime.now().plusHours(1));
-        bookingCreateDto.setEnd(LocalDateTime.now().minusHours(1));
-        bookingCreateDto.setItemId(1L);
-        mapper.registerModule(new JavaTimeModule());
-
-        postBooking(1L, bookingCreateDto)
-                .andExpect(status().isBadRequest());
     }
 
     @Test

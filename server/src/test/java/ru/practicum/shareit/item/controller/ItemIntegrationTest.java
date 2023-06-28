@@ -76,55 +76,6 @@ class ItemIntegrationTest {
     }
 
     @Test
-    public void addItemWithoutNameTest() throws Exception {
-        postUser(userDto).andExpect(status().isOk());
-        itemDto.setName(null);
-        postItem(userDto.getId(), itemDto).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void addItemWithoutDescriptionTest() throws Exception {
-        postUser(userDto).andExpect(status().isOk());
-        itemDto.setDescription(null);
-        postItem(userDto.getId(), itemDto).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void addItemEmptyNameTest() throws Exception {
-        postUser(userDto).andExpect(status().isOk());
-        itemDto.setName("");
-        postItem(userDto.getId(), itemDto).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void addItemEmptyDescriptionTest() throws Exception {
-        postUser(userDto).andExpect(status().isOk());
-        itemDto.setDescription("");
-        postItem(userDto.getId(), itemDto).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void addItemBlankNameTest() throws Exception {
-        postUser(userDto).andExpect(status().isOk());
-        itemDto.setName("       ");
-        postItem(userDto.getId(), itemDto).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void addItemBlankDescriptionTest() throws Exception {
-        postUser(userDto).andExpect(status().isOk());
-        itemDto.setDescription("     ");
-        postItem(userDto.getId(), itemDto).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void addItemWithoutAvailableTest() throws Exception {
-        postUser(userDto).andExpect(status().isOk());
-        itemDto.setAvailable(null);
-        postItem(userDto.getId(), itemDto).andExpect(status().isBadRequest());
-    }
-
-    @Test
     public void addItemWithoutHeaderTest() throws Exception {
         postUser(userDto).andExpect(status().isOk());
         mockMvc.perform(
