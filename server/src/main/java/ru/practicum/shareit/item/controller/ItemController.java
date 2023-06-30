@@ -10,6 +10,8 @@ import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
 
+import static ru.practicum.shareit.utility.Constants.USER_HEADER;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/items")
@@ -18,14 +20,14 @@ public class ItemController {
 
     @GetMapping("/{id}")
     public ItemInfoDto getItemById(@PathVariable Long id,
-                                   @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                   @RequestHeader(USER_HEADER) Long userId) {
         return itemService.getItemById(id, userId);
     }
 
     @GetMapping
     public List<ItemInfoDto> getItems(@RequestParam(defaultValue = "0") Integer from,
                                       @RequestParam(defaultValue = "10") Integer size,
-                                      @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                      @RequestHeader(USER_HEADER) Long userId) {
         return itemService.getItemsByUserId(userId, from, size);
     }
 
@@ -38,21 +40,21 @@ public class ItemController {
 
     @PostMapping
     public ItemDto addItem(@RequestBody ItemDto itemDto,
-                           @RequestHeader("X-Sharer-User-Id") Long userId) {
+                           @RequestHeader(USER_HEADER) Long userId) {
         return itemService.addItem(userId, itemDto);
     }
 
     @PostMapping("/{itemId}/comment")
     public CommentDto addComment(@RequestBody CommentCreateDto commentDto,
                                  @PathVariable Long itemId,
-                                 @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                 @RequestHeader(USER_HEADER) Long userId) {
         return itemService.addComment(userId, itemId, commentDto);
     }
 
     @PatchMapping("/{id}")
     public ItemDto updateItem(@RequestBody ItemDto itemDto,
                               @PathVariable Long id,
-                              @RequestHeader("X-Sharer-User-Id") Long userId) {
+                              @RequestHeader(USER_HEADER) Long userId) {
         return itemService.updateItem(userId, id, itemDto);
     }
 

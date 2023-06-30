@@ -11,6 +11,8 @@ import ru.practicum.shareit.validation.Marker;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
+import static ru.practicum.shareit.utility.Constants.USER_HEADER;
+
 @Slf4j
 @RestController
 @AllArgsConstructor
@@ -21,7 +23,7 @@ public class RequestController {
 
     @GetMapping("/{requestId}")
     public ResponseEntity<Object> getRequest(@PathVariable Long requestId,
-                                             @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                             @RequestHeader(USER_HEADER) Long userId) {
         log.info("Get request {}, userId={}", requestId, userId);
         return requestClient.getRequest(userId, requestId);
     }
@@ -29,20 +31,20 @@ public class RequestController {
     @GetMapping("/all")
     public ResponseEntity<Object> getRequests(@PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                               @Positive @RequestParam(defaultValue = "10") Integer size,
-                                              @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                              @RequestHeader(USER_HEADER) Long userId) {
         log.info("Get requests with userId={}, from={}, size={}", userId, from, size);
         return requestClient.getRequests(userId, from, size);
     }
 
     @GetMapping
-    public ResponseEntity<Object> getUserRequests(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public ResponseEntity<Object> getUserRequests(@RequestHeader(USER_HEADER) Long userId) {
         log.info("Get user requests with userId={}", userId);
         return requestClient.getUserRequests(userId);
     }
 
     @PostMapping
     public ResponseEntity<Object> addRequest(@RequestBody @Validated(Marker.OnCreate.class) RequestDto requestDto,
-                                             @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                             @RequestHeader(USER_HEADER) Long userId) {
         log.info("Add request {} with userId={}", requestDto, userId);
         return requestClient.addRequest(userId, requestDto);
     }
