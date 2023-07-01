@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  gateway:
+    build: ./gateway
+    container_name: share-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - server
+    environment:
+      - SHARE_SERVER_URL=http://server:9090
+
+  server:
+    build: ./server
+    container_name: share-server
+    ports:
+      - "9090:9090"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=share
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=1
+
+  db:
+    image: postgres:13.7-alpine
+    volumes:
+      - /var/lib/postgresql/data
+    container_name: share-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=share
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=1
